@@ -15,3 +15,7 @@
 ### 🔗 Trello Board Link
 
 https://trello.com/b/4jlbalcB/medref
+
+### 🔗 External API Link
+
+https://medlineplus.gov/medlineplus-connect/web-service/
