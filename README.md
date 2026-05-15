@@ -11,3 +11,7 @@
 - Architecture - Blazor WASM → ASP.NET API → MedlinePlus Connect
 
 ### 🔗 Project Link (TBA)
+
+### 🔗 Trello Board Link
+
+https://trello.com/b/4jlbalcB/medref
