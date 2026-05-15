@@ -107,6 +107,16 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "MedRef.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/MedRef.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/MedRef.Shared.dll": {}
+        }
       }
     }
   },
@@ -473,10 +483,16 @@
         "swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "MedRef.Shared/1.0.0": {
+      "type": "project",
+      "path": "../MedRef.Shared/MedRef.Shared.csproj",
+      "msbuildProject": "../MedRef.Shared/MedRef.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "MedRef.Shared >= 1.0.0",
       "Microsoft.AspNetCore.OpenApi >= 8.0.26",
       "Swashbuckle.AspNetCore >= 6.6.2"
     ]
@@ -513,7 +529,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
+              "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "7GgmTb01SmtcoiFMeXYyIuA50n5Awo2eZix9EzfgKjA=",
+  "Source": "MedRef.Server",
+  "BasePath": "_content/MedRef.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

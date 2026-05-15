@@ -1,0 +1,12 @@
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\bin\Debug\net8.0\MedRef.Shared.deps.json
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\bin\Debug\net8.0\MedRef.Shared.dll
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\bin\Debug\net8.0\MedRef.Shared.pdb
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.AssemblyInfoInputs.cache
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.AssemblyInfo.cs
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.csproj.CoreCompileInputs.cache
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.sourcelink.json
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.dll
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\refint\MedRef.Shared.dll
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\MedRef.Shared.pdb
+C:\Users\PC\OneDrive - Lucky mobile\Documents\.SCHOOL\BYU Idaho\2026\2026 Block 3\CSE325\medref\MedRef.Shared\obj\Debug\net8.0\ref\MedRef.Shared.dll
