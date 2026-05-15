@@ -2,7 +2,7 @@
 
 - James Phillip De Guzman
 - Nefi Zaldana
-- Jeremey Aaron Herrera
+- Jeremy Aaron Herrera
 
 ### 📌 Project Details
 
