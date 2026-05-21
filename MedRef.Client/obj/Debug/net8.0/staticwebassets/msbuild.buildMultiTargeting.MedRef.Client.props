@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\MedRef.Client.props" />
-</Project>
