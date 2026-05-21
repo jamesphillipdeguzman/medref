@@ -1,0 +1,71 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (ContosoPizza)",
+            "type": "coreclr",            
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/ContosoPizza/bin/Debug/net8.0/ContosoPizza.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/ContosoPizza",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch (MathChallenge)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/MathChallenge/bin/Debug/net8.0/MathChallenge.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/MathChallenge",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }, 
+        {
+            "name": ".NET Core Launch (DotNetDebugging)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/DotNetDebugging/bin/Debug/net8.0/DotNetDebugging.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/DotNetDebugging",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch (HelloWorld)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/HelloWorld/bin/Debug/net8.0/HelloWorld.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/HelloWorld",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch (WeatherForecast)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/WeatherForecast/bin/Debug/net8.0/WeatherForecast.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/WeatherForecast",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch (mslearn-dotnet-files)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/CsharpProject/mslearn-dotnet-files/bin/Debug/net8.0/mslearn-dotnet-files.dll",
+            "cwd": "${workspaceFolder}/CsharpProject/mslearn-dotnet-files",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    
+        
+    ]
+}
+

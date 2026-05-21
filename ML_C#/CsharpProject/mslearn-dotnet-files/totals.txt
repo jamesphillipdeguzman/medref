@@ -1,0 +1,9 @@
+Sales Summary
+-------------
+
+Store 201: $1,501.22
+Store 202: $101.22
+Store 203: $154,401.22
+Store 204: $13,501.22
+
+Total sales for all stores is $169,504.88.

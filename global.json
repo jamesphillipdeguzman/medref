@@ -2,4 +2,8 @@
   "sdk": {
     "version": "8.0.420"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2931e45 (Fix project directory tracking and sync CSE325 coursework)
