@@ -421,13 +421,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.26": {
+      "Microsoft.NET.ILLink.Tasks/8.0.27": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.26": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.27": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -881,13 +881,13 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.26": {
+      "Microsoft.NET.ILLink.Tasks/8.0.27": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.26": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.27": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
@@ -1733,10 +1733,10 @@
         "microsoft.jsinterop.webassembly.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/8.0.26": {
-      "sha512": "o7/yVssM2r9Wyln2s9edBd5ANZXqdSdBI+g7JqXkyJmXrhs2WsJp25K5yPnYrTgdKBCjKB8bg+O2oew4sgzFaA==",
+    "Microsoft.NET.ILLink.Tasks/8.0.27": {
+      "sha512": "rQi9TxifHRnXP7lVRZH05DxD2/XGbJp12q0ozcbrlBlBnyyzssFTH/2vLhtKWUp2CT1qVscTrcYTFiwTyKPKRg==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/8.0.26",
+      "path": "microsoft.net.illink.tasks/8.0.27",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -1750,7 +1750,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.8.0.26.nupkg.sha512",
+        "microsoft.net.illink.tasks.8.0.27.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net472/ILLink.Tasks.dll",
         "tools/net472/ILLink.Tasks.dll.config",
@@ -1784,10 +1784,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.26": {
-      "sha512": "5J7PAaRz/mjXKz44WHVFXDfhMCUdDCzAWyPB5kp1wud/b1zePKoPyBjU1zfGG0dgTLvsfkYP2zlKfVErZZGSgg==",
+    "Microsoft.NET.Sdk.WebAssembly.Pack/8.0.27": {
+      "sha512": "fNGQd+pJZ7ihrmDf4FIaxaC7y66BGsinnd3wRBus5R2R58d5rS4oClTSH6Sh+XZPWHBaDl2JTdvpnH3sQcK+PQ==",
       "type": "package",
-      "path": "microsoft.net.sdk.webassembly.pack/8.0.26",
+      "path": "microsoft.net.sdk.webassembly.pack/8.0.27",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -1815,7 +1815,7 @@
         "build/Microsoft.NET.Sdk.WebAssembly.Pack.props",
         "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets",
         "build/Wasm.web.config",
-        "microsoft.net.sdk.webassembly.pack.8.0.26.nupkg.sha512",
+        "microsoft.net.sdk.webassembly.pack.8.0.27.nupkg.sha512",
         "microsoft.net.sdk.webassembly.pack.nuspec",
         "tools/net472/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll",
         "tools/net472/Microsoft.NET.WebAssembly.Webcil.dll",
@@ -1863,28 +1863,28 @@
       "MedRef.Shared >= 1.0.0",
       "Microsoft.AspNetCore.Components.WebAssembly >= 8.0.26",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 8.0.26",
-      "Microsoft.NET.ILLink.Tasks >= 8.0.26",
-      "Microsoft.NET.Sdk.WebAssembly.Pack >= 8.0.26"
+      "Microsoft.NET.ILLink.Tasks >= 8.0.27",
+      "Microsoft.NET.Sdk.WebAssembly.Pack >= 8.0.27"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\PC\\.nuget\\packages\\": {},
+    "C:\\Users\\nefiz\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Client\\MedRef.Client.csproj",
+      "projectUniqueName": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Client\\MedRef.Client.csproj",
       "projectName": "MedRef.Client",
-      "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Client\\MedRef.Client.csproj",
-      "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Client\\obj\\",
+      "projectPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Client\\MedRef.Client.csproj",
+      "packagesPath": "C:\\Users\\nefiz\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Client\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\nefiz\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -1893,15 +1893,14 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
-              "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj"
+            "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
+              "projectPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj"
             }
           }
         }
@@ -1933,13 +1932,13 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[8.0.26, )",
+            "version": "[8.0.27, )",
             "autoReferenced": true
           },
           "Microsoft.NET.Sdk.WebAssembly.Pack": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[8.0.26, )",
+            "version": "[8.0.27, )",
             "autoReferenced": true
           }
         },
@@ -1957,7 +1956,7 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-            "version": "[8.0.26, 8.0.26]"
+            "version": "[8.0.27, 8.0.27]"
           }
         ],
         "frameworkReferences": {
@@ -1965,7 +1964,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.420/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.421/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {

@@ -1,0 +1,31 @@
+<header class="app-header">
+    <div class="brand-block">
+        <div class="logo-mark" aria-hidden="true">
+            <span class="logo-cross-h"></span>
+            <span class="logo-cross-v"></span>
+        </div>
+        <span class="app-name">MedRef</span>
+    </div>
+
+    <div class="mode-toggle" role="group" aria-label="Mode switch">
+        <span class="mode-label @(isNurseMode ? "active" : string.Empty)">Nurse Mode</span>
+
+        <button class="switch-button @(isNurseMode ? "on" : "off")"
+                @onclick="ToggleMode"
+                type="button"
+                aria-label="Toggle mode">
+            <span class="switch-thumb"></span>
+        </button>
+
+        <span class="mode-label @(!isNurseMode ? "active" : string.Empty)">Patient Mode</span>
+    </div>
+</header>
+
+@code {
+    private bool isNurseMode = true;
+
+    private void ToggleMode()
+    {
+        isNurseMode = !isNurseMode;
+    }
+}

@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Server\\MedRef.Server.csproj": {}
+    "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Server\\MedRef.Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Server\\MedRef.Server.csproj": {
+    "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Server\\MedRef.Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Server\\MedRef.Server.csproj",
+        "projectUniqueName": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Server\\MedRef.Server.csproj",
         "projectName": "MedRef.Server",
-        "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Server\\MedRef.Server.csproj",
-        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Server\\obj\\",
+        "projectPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Server\\MedRef.Server.csproj",
+        "packagesPath": "C:\\Users\\nefiz\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Server\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\nefiz\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,15 +26,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
-                "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj"
+              "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
+                "projectPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj"
               }
             }
           }
@@ -82,24 +81,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.420/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.421/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
+    "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj",
+        "projectUniqueName": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj",
         "projectName": "MedRef.Shared",
-        "projectPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\MedRef.Shared.csproj",
-        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\PC\\OneDrive - Lucky mobile\\Documents\\.SCHOOL\\BYU Idaho\\2026\\2026 Block 3\\CSE325\\medref\\MedRef.Shared\\obj\\",
+        "projectPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\MedRef.Shared.csproj",
+        "packagesPath": "C:\\Users\\nefiz\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\nefiz\\OneDrive\\Documentos\\BYUI\\medref\\MedRef.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\nefiz\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -108,7 +107,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -147,7 +145,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.420/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.421/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
