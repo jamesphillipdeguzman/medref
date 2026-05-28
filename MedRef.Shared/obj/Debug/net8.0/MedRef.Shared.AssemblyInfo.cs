@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MedRef.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9dee27b6a29aafee50e5fc11d0cd5c6ce61b8606")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2828e7815fafa307e5b0bb70992e40d85951d429")]
 [assembly: System.Reflection.AssemblyProductAttribute("MedRef.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MedRef.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
