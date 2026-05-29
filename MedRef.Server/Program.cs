@@ -5,6 +5,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient("MedlinePlus", client =>
+{
+    client.BaseAddress = new Uri("https://connect.medlineplus.gov/");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
