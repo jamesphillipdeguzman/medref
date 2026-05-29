@@ -1,4 +1,11 @@
 @page "/icd10-search"
+<<<<<<< HEAD
+<<<<<<< HEAD
+@inject HttpClient Http
+=======
+>>>>>>> origin/main
+=======
+>>>>>>> 830dc219b1c7d535e3e1ad572222ff3de6806fa5
 
 // Medref ICD-10 Search Page
 <PageTitle>ICD-10 Search</PageTitle>
@@ -7,6 +14,27 @@
 
 <div class="search-container">
 	<div class="search-row">
+<<<<<<< HEAD
+<<<<<<< HEAD
+		<input class="search-input" 
+			type="text" 
+			placeholder="Enter ICD-10 Code (e.g., E11.9)"
+			aria-label="ICD-10 code search" 
+			autocomplete="off" 
+			@bind="searchCode" />
+
+		<button class="search-button" 
+			type="button"
+			@onclick="ExecuteApiSearchAsync"
+			disabled="@isSearching"> @(isSearching ? "Searching..." : "Search")
+		</button>
+	</div>
+</div>
+
+
+=======
+=======
+>>>>>>> 830dc219b1c7d535e3e1ad572222ff3de6806fa5
 		<input class="search-input"
 			   type="text"
 			   placeholder="Enter ICD-10 Code (e.g., E11.9)"
@@ -17,6 +45,10 @@
 	</div>
 </div>
 
+<<<<<<< HEAD
+>>>>>>> origin/main
+=======
+>>>>>>> 830dc219b1c7d535e3e1ad572222ff3de6806fa5
 <div class="result-parent">
 	<section class="result-left">
 		<div class="info-block">
@@ -157,3 +189,66 @@
 		</div>
 	</section>
 </div>
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+@code {
+	private string searchCode = string.Empty;
+	private bool isSearching = false;
+
+	private string apiResultRaw = string.Empty;
+
+	// These variables will replace the hardcoded strings in your markup later
+    private string conditionTitle = "Type 2 diabetes mellitus without complications.";
+    private string conditionDefinition = "This condition describes chronic high blood sugar caused by insulin resistance...";
+
+	private async Task ExecuteApiSearchAsync()
+    {
+        // 1. Guard against empty requests
+        if (string.IsNullOrWhiteSpace(searchCode))
+            return;
+
+        try
+        {
+            isSearching = true;
+            apiResultRaw = string.Empty;
+
+            // 2. MedlinePlus Web Service API URL configuration
+            // Using the standard Web Services URL format targeting the ICD-10-CM code system
+            string standardUrl = $"api/medlineproxy?code={Uri.EscapeDataString(searchCode.Trim())}";
+
+            // 3. Issue the async HTTP network request
+            var response = await Http.GetAsync(standardUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Read the raw JSON string payload 
+                apiResultRaw = await response.Content.ReadAsStringAsync();
+				                
+                // TODO: Pipe 'apiResultRaw' into the data models once we create them 
+                // for task #2 on Trello board.
+                Console.WriteLine($"Successfully received API response payload: {apiResultRaw.Length} characters.");
+				
+            }
+            else
+            {
+                conditionTitle = "Error";
+                conditionDefinition = $"Failed to pull data from MedlinePlus API. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            conditionTitle = "Connection Exception";
+            conditionDefinition = $"An unexpected error occurred while processing the request: {ex.Message}";
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+} 
+=======
+>>>>>>> origin/main
+=======
+>>>>>>> 830dc219b1c7d535e3e1ad572222ff3de6806fa5
