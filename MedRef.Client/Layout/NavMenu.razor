@@ -1,39 +1,18 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">MedRef.Client</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿<nav class="sidebar-nav" aria-label="Main pages">
+    <h2 class="sidebar-title">Pages</h2>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    <NavLink class="page-link" href="icd10-search">
+        <span class="menu-icon icon-search" aria-hidden="true"></span>
+        <span>ICD-10 Search</span>
+    </NavLink>
 
-@code {
-    private bool collapseNavMenu = true;
+    <NavLink class="page-link" href="saved-records">
+        <span class="menu-icon icon-folder" aria-hidden="true"></span>
+        <span>Saved Records</span>
+    </NavLink>
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+    <NavLink class="page-link" href="help">
+        <span class="menu-icon icon-help" aria-hidden="true"></span>
+        <span>Help</span>
+    </NavLink>
+</nav>

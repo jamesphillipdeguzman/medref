@@ -1,17 +1,17 @@
 ## Ignore .NET build artifacts
 **/bin
 **/obj
- 
+
 # Avoid tracking compiled build outputs
 bin/
 obj/
- 
+
 # Alternative explicit targeting if you want to be specific
 **/bin/Debug/
 **/bin/Release/
 **/obj/Debug/
 **/obj/Release/
- 
+
 ## Ignore user-specific IDE settings
 .vs/
 .vscode/

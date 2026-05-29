@@ -1,0 +1,170 @@
+@page "/icd10-search"
+@inject HttpClient Http
+@using MedRef.Shared.Models
+@using System.Net.Http.Json
+
+<PageTitle>ICD-10 Search</PageTitle>
+
+<h1>ICD-10 Search</h1>
+
+<div class="search-container">
+    <div class="search-row">
+        <input class="search-input" 
+               type="text" 
+               placeholder="Enter ICD-10 Code (e.g., E11.9)"
+               aria-label="ICD-10 code search" 
+               autocomplete="off" 
+               @bind="searchCode" 
+               @bind:event="oninput"
+               @onkeyup="HandleKeyUp" />
+
+        <button class="search-button" 
+                type="button"
+                @onclick="ExecuteApiSearchAsync"
+                disabled="@isSearching"> @(isSearching ? "Searching..." : "Search")
+        </button>
+    </div>
+</div>
+
+<div class="result-parent">
+    <section class="result-left">
+        @if (searchResult?.Feed?.Entries != null && searchResult.Feed.Entries.Any())
+        {
+            // Pull the top active diagnostic reference record entry matched by MedlinePlus
+            var primaryEntry = searchResult.Feed.Entries.First();
+
+            <div class="info-block">
+                <h2>Condition:</h2>
+                <p><strong>@searchCode.ToUpper().Trim()</strong> - @primaryEntry.Title.Value</p>
+            </div>
+
+            <div class="info-block">
+                <h2>Definition</h2>
+                <p>@((MarkupString)primaryEntry.Summary.Value)</p>
+            </div>
+
+            <div class="medline-links-box">
+                <h3>Medline Plus Links:</h3>
+                <p>Patient education resources from MedlinePlus:</p>
+                <ul class="medline-links-list" style="padding-left: 20px; margin-top: 10px;">
+                    @foreach (var link in primaryEntry.Links)
+                    {
+                        <li style="margin-bottom: 5px;">
+                            <a href="@link.Href" target="_blank" rel="noopener noreferrer" style="color: #0057b8; text-decoration: underline;">
+                                View Official Reference Document (@link.Rel)
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="info-block error-state" style="border-left: 4px solid #dc3545; padding-left: 15px;">
+                <h2>System Alert</h2>
+                <p style="color: #dc3545;">@errorMessage</p>
+            </div>
+        }
+        else
+        {
+            <div class="info-block empty-state">
+                <h2>No Active Search</h2>
+                <p>Please type an explicit diagnostic lookup value above (e.g., <code>E11.9</code>) to explore unified clinical index definitions.</p>
+            </div>
+        }
+    </section>
+
+    <section class="result-right">
+        <h3 class="saved-codes-title">SAVED CODES</h3>
+
+        <div class="disease-card">
+            <div class="card-top">
+                <span class="action-icon icon-person" aria-hidden="true"></span>
+                <span class="disease-code">A10.1</span>
+            </div>
+            <p class="disease-name">Disease Name: Hypertension</p>
+            <div class="card-actions">
+                <button class="action-button" type="button">
+                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
+                    Edit Notes
+                </button>
+                <button class="action-button danger" type="button">
+                    <span class="action-icon icon-trash" aria-hidden="true"></span>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <div class="disease-card">
+            <div class="card-top">
+                <span class="action-icon icon-person" aria-hidden="true"></span>
+                <span class="disease-code">B22.4</span>
+            </div>
+            <p class="disease-name">Disease Name: Asthma</p>
+            <div class="card-actions">
+                <button class="action-button" type="button">
+                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
+                    Edit Notes
+                </button>
+                <button class="action-button danger" type="button">
+                    <span class="action-icon icon-trash" aria-hidden="true"></span>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <div class="favorites-row">
+            <button class="favorites-button" type="button">SAVE TO FAVORITES</button>
+        </div>
+    </section>
+</div>
+
+@code {
+    private string searchCode = string.Empty;
+    private bool isSearching = false;
+    private string errorMessage = string.Empty;
+    
+    // Strongly typed model holds the deserialized structure live
+    private MedlineRoot? searchResult;
+
+    private async Task ExecuteApiSearchAsync()
+    {
+        if (string.IsNullOrWhiteSpace(searchCode))
+            return;
+
+        try
+        {
+            isSearching = true;
+            errorMessage = string.Empty;
+            searchResult = null;
+
+            // Target the clean backend proxy route we built in Step 2
+            string endpointUrl = $"api/medlineproxy?code={Uri.EscapeDataString(searchCode.Trim())}";
+
+            // Directly read and stream into your Shared model array structure
+            searchResult = await Http.GetFromJsonAsync<MedlineRoot>(endpointUrl);
+
+            if (searchResult?.Feed?.Entries == null || !searchResult.Feed.Entries.Any())
+            {
+                errorMessage = $"No unified clinical matching records returned for index entry: {searchCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An unexpected connectivity or structural translation mapping error occurred: {ex.Message}";
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        // Let users just press 'Enter' inside the box instead of clicking search every time
+        if (e.Key == "Enter")
+        {
+            await ExecuteApiSearchAsync();
+        }
+    }
+}
