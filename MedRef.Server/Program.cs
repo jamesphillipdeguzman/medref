@@ -1,44 +1,56 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Enforce HTTPS and serve static files (if needed for any frontend assets)
+// app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// app.UseStaticFiles();
 
-app.MapGet("/weatherforecast", () =>
+app.UseRouting();
+
+// Define the API endpoint for proxying requests to the MedlinePlus Web Service
+app.MapGet("/api/medlineproxy",
+    async (string code, IHttpClientFactory httpClientFactory) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+    if (string.IsNullOrWhiteSpace(code))
+        return Results.BadRequest("Code is required.");
+
+    try
+    {
+        var client = httpClientFactory.CreateClient();
+
+        string medlineUrl =
+            $"https://connect.medlineplus.gov/service?mainSearchCriteria.v.cs=2.16.840.1.113883.6.90&mainSearchCriteria.v.c={Uri.EscapeDataString(code)}&knowledgeResponseType=application/json";
+
+        client.DefaultRequestHeaders.UserAgent.ParseAdd(
+            "Mozilla/5.0 (compatible; MedRefApp/1.0)");
+
+        var response = await client.GetAsync(medlineUrl);
+
+        if (!response.IsSuccessStatusCode)
+            return Results.StatusCode((int)response.StatusCode);
+
+        var jsonPayload = await response.Content.ReadAsStringAsync();
+
+        return Results.Content(jsonPayload, "application/json");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Proxy error: {ex.Message}");
+    }
+});
+
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
