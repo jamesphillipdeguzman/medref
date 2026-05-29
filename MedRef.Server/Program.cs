@@ -1,9 +1,23 @@
+using Microsoft.AspNetCore.Builder;
+using MedRef.Server.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<IMedlineService, MedlineService>();
+
+// Enable CORS so the client can talk to the server across local ports
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -13,45 +27,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Enforce HTTPS and serve static files (if needed for any frontend assets)
-// app.UseHttpsRedirection();
-
-// app.UseStaticFiles();
-
+app.UseStaticFiles();
 app.UseRouting();
+app.UseCors(); // Apply CORS policies here
 
-// Define the API endpoint for proxying requests to the MedlinePlus Web Service
-app.MapGet("/api/medlineproxy",
-    async (string code, IHttpClientFactory httpClientFactory) =>
+app.MapGet("/api/medlineproxy", async (string code, IMedlineService medlineService, CancellationToken ct) =>
 {
     if (string.IsNullOrWhiteSpace(code))
         return Results.BadRequest("Code is required.");
 
-    try
-    {
-        var client = httpClientFactory.CreateClient();
+    var data = await medlineService.GetMedlineDataAsync(code, ct);
 
-        // Construct the MedlinePlus Web Service URL with the provided code
-        string medlineUrl =
-            $"https://connect.medlineplus.gov/service?mainSearchCriteria.v.cs=2.16.840.1.113883.6.90&mainSearchCriteria.v.c={Uri.EscapeDataString(code)}&knowledgeResponseType=application/json";
-
-        client.DefaultRequestHeaders.UserAgent.ParseAdd(
-            "Mozilla/5.0 (compatible; MedRefApp/1.0)");
-
-        var response = await client.GetAsync(medlineUrl);
-
-        if (!response.IsSuccessStatusCode)
-            return Results.StatusCode((int)response.StatusCode);
-
-        var jsonPayload = await response.Content.ReadAsStringAsync();
-
-        return Results.Content(jsonPayload, "application/json");
-    }
-    catch (Exception ex)
-    {
-        return Results.Problem($"Proxy error: {ex.Message}");
-    }
+    return data is not null
+        ? Results.Ok(data)
+        : Results.NotFound($"No Medline reference records found for code: {code}");
 });
-
 
 app.Run();
