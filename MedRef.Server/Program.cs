@@ -31,6 +31,7 @@ app.MapGet("/api/medlineproxy",
     {
         var client = httpClientFactory.CreateClient();
 
+        // Construct the MedlinePlus Web Service URL with the provided code
         string medlineUrl =
             $"https://connect.medlineplus.gov/service?mainSearchCriteria.v.cs=2.16.840.1.113883.6.90&mainSearchCriteria.v.c={Uri.EscapeDataString(code)}&knowledgeResponseType=application/json";
 

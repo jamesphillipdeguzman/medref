@@ -1,5 +1,8 @@
 @page "/icd10-search"
+<<<<<<< HEAD
 @inject HttpClient Http
+=======
+>>>>>>> origin/main
 
 // Medref ICD-10 Search Page
 <PageTitle>ICD-10 Search</PageTitle>
@@ -8,6 +11,7 @@
 
 <div class="search-container">
 	<div class="search-row">
+<<<<<<< HEAD
 		<input class="search-input" 
 			type="text" 
 			placeholder="Enter ICD-10 Code (e.g., E11.9)"
@@ -24,6 +28,18 @@
 </div>
 
 
+=======
+		<input class="search-input"
+			   type="text"
+			   placeholder="Enter ICD-10 Code (e.g., E11.9)"
+			   aria-label="ICD-10 code search"
+			   autocomplete="off" />
+
+		<button class="search-button" type="button">Search</button>
+	</div>
+</div>
+
+>>>>>>> origin/main
 <div class="result-parent">
 	<section class="result-left">
 		<div class="info-block">
@@ -164,6 +180,7 @@
 		</div>
 	</section>
 </div>
+<<<<<<< HEAD
 
 @code {
 	private string searchCode = string.Empty;
@@ -221,3 +238,5 @@
     }
 
 } 
+=======
+>>>>>>> origin/main
