@@ -19,6 +19,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHttpClient("MedlinePlus", client =>
+{
+    client.BaseAddress = new Uri("https://connect.medlineplus.gov/");
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
