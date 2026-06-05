@@ -1,19 +1,21 @@
-## Ignore .NET build artifacts
-**/bin
-**/obj
-
-# Avoid tracking compiled build outputs
+# .NET / Visual Studio Build artifacts
+**/bin/
+**/obj/
 bin/
 obj/
-
-# Alternative explicit targeting if you want to be specific
-**/bin/Debug/
-**/bin/Release/
-**/obj/Debug/
-**/obj/Release/
-
-## Ignore user-specific IDE settings
-.vs/
-.vscode/
 *.user
 *.suo
+
+# IDE & Editor settings
+.vs/
+.vscode/
+.idea/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Secrets (NEVER COMMIT)
+*.env
+*.secrets.json
+appsettings.Local.json
