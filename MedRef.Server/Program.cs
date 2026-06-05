@@ -1,31 +1,43 @@
-using Microsoft.AspNetCore.Builder;
 using MedRef.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =====================
+// Services
+// =====================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient();
-builder.Services.AddScoped<IMedlineService, MedlineService>();
 
-// Enable CORS so the client can talk to the server across local ports
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
-});
+builder.Services.AddScoped<IMedlineService, MedlineService>();
 
 builder.Services.AddHttpClient("MedlinePlus", client =>
 {
     client.BaseAddress = new Uri("https://connect.medlineplus.gov/");
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
+// =====================
+// CORS
+// =====================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowNetlify", policy =>
+    {
+        policy.WithOrigins(
+                "https://medreftool.netlify.app",
+                "http://localhost:5124"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+// =====================
+// Build app
+// =====================
 var app = builder.Build();
 
+// Swagger (dev only)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,9 +46,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-app.UseCors(); // Apply CORS policies here
 
-app.MapGet("/api/medlineproxy", async (string code, IMedlineService medlineService, CancellationToken ct) =>
+// IMPORTANT: CORS must be before endpoints
+app.UseCors("AllowNetlify");
+
+// =====================
+// Endpoint
+// =====================
+app.MapGet("/api/medlineproxy",
+async (string code, IMedlineService medlineService, CancellationToken ct) =>
 {
     if (string.IsNullOrWhiteSpace(code))
         return Results.BadRequest("Code is required.");
@@ -45,7 +63,7 @@ app.MapGet("/api/medlineproxy", async (string code, IMedlineService medlineServi
 
     return data is not null
         ? Results.Ok(data)
-        : Results.NotFound($"No Medline reference records found for code: {code}");
+        : Results.NotFound($"No Medline data found for {code}");
 });
 
 app.Run();

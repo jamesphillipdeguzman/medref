@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using MedRef.Shared.Models;
 
@@ -23,42 +22,58 @@ public class MedlineService : IMedlineService
     public async Task<MedlineRoot?> GetMedlineDataAsync(string icdCode, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(icdCode))
-            throw new ArgumentException("ICD code is required.", nameof(icdCode));
+            return null;
 
         try
         {
-            // var client = _httpClientFactory.CreateClient();
             var client = _httpClientFactory.CreateClient("MedlinePlus");
-            client.Timeout = TimeSpan.FromSeconds(10);
 
-            // Construct the MedlinePlus Web Service URL with the provided ICD code
-            string medlineUrl =
-                $"https://connect.medlineplus.gov/service?mainSearchCriteria.v.cs=2.16.840.1.113883.6.90&mainSearchCriteria.v.c={Uri.EscapeDataString(icdCode)}&knowledgeResponseType=application/json";
+            var url =
+                $"service?mainSearchCriteria.v.cs=2.16.840.1.113883.6.90" +
+                $"&mainSearchCriteria.v.c={Uri.EscapeDataString(icdCode)}" +
+                $"&knowledgeResponseType=application/json";
 
-            client.DefaultRequestHeaders.UserAgent.ParseAdd(
-                "Mozilla/5.0 (compatible; MedRefApp/1.0)");
+            _logger.LogInformation("Calling MedlinePlus for {Code}", icdCode);
 
-            var response = await client.GetAsync(medlineUrl, cancellationToken);
+            var response = await client.GetAsync(url, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning("MedlinePlus API returned non-success status code {StatusCode} for ICD code {IcdCode}",
-                    response.StatusCode, icdCode);
+                _logger.LogWarning("MedlinePlus failed: {StatusCode}", response.StatusCode);
                 return null;
             }
 
-            var jsonPayload = await response.Content.ReadAsStringAsync(cancellationToken);
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
 
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                _logger.LogWarning("Empty MedlinePlus response for {Code}", icdCode);
+                return null;
+            }
 
-            var medlineData = await response.Content.ReadFromJsonAsync<MedlineRoot>(
-    new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
-    cancellationToken);
-
-            return medlineData;
+            try
+            {
+                return JsonSerializer.Deserialize<MedlineRoot>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to parse MedlinePlus JSON for {Code}", icdCode);
+                return null;
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            _logger.LogError("MedlinePlus request timed out for {Code}", icdCode);
+            return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error fetching data from MedlinePlus API for ICD code {IcdCode}", icdCode);
+            _logger.LogError(ex, "Unexpected error for {Code}", icdCode);
             return null;
         }
     }
