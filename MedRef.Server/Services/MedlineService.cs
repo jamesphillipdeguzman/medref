@@ -27,7 +27,9 @@ public class MedlineService : IMedlineService
 
         try
         {
-            var client = _httpClientFactory.CreateClient();
+            // var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("MedlinePlus");
+            client.Timeout = TimeSpan.FromSeconds(10);
 
             // Construct the MedlinePlus Web Service URL with the provided ICD code
             string medlineUrl =
