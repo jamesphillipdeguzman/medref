@@ -3,6 +3,12 @@ using MedRef.Server.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // =====================
+// 🚨 RAILWAY PORT BINDING (IMPORTANT)
+// =====================
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+// =====================
 // Services
 // =====================
 builder.Services.AddEndpointsApiExplorer();
@@ -32,26 +38,23 @@ builder.Services.AddCors(options =>
     });
 });
 
-// =====================
-// Build app
-// =====================
 var app = builder.Build();
 
-// Swagger (dev only)
+// =====================
+// Middleware
+// =====================
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseStaticFiles();
 app.UseRouting();
 
-// IMPORTANT: CORS must be before endpoints
 app.UseCors("AllowNetlify");
 
 // =====================
-// Endpoint
+// API
 // =====================
 app.MapGet("/api/medlineproxy",
 async (string code, IMedlineService medlineService, CancellationToken ct) =>
