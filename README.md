@@ -10,7 +10,9 @@
 - Description: A medical reference tool for ICD codes and more...
 - Architecture - Blazor WASM → ASP.NET API → MedlinePlus Connect
 
-### 🔗 Project Link (TBA)
+## 🚀 Live Demo
+* **Frontend:** [MedRef Tool](https://medreftool.netlify.app/icd10-search)
+* **Backend API:** [MedRef API Status](https://medref-backend-565n.onrender.com/api/medlineproxy?code=E11.9)
 
 ### 🔗 Trello Board Link
 
