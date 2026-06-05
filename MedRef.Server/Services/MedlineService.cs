@@ -51,20 +51,12 @@ public class MedlineService : IMedlineService
                 return null;
             }
 
-            try
-            {
-                return JsonSerializer.Deserialize<MedlineRoot>(
-                    json,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to parse MedlinePlus JSON for {Code}", icdCode);
-                return null;
-            }
+            return JsonSerializer.Deserialize<MedlineRoot>(
+                json,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
         }
         catch (TaskCanceledException)
         {
