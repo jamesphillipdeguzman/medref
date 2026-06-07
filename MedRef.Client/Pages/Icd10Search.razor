@@ -14,7 +14,7 @@
                placeholder="Enter ICD-10 Code (e.g., E11.9)"
                aria-label="ICD-10 code search" 
                autocomplete="off" 
-               @bind="searchCode" 
+             @bind="searchInputText"
                @bind:event="oninput"
                @onkeyup="HandleKeyUp" />
 
@@ -28,36 +28,51 @@
 
 <div class="result-parent">
     <section class="result-left">
-        @if (searchResult?.Feed?.Entries != null && searchResult.Feed.Entries.Any())
+        @* State 1: active loading while waiting for the API response *@
+        @if (isSearching)
         {
-            // Pull the top active diagnostic reference record entry matched by MedlinePlus
-            var primaryEntry = searchResult.Feed.Entries.First();
-
+            <div class="info-block">
+                <h2>Searching</h2>
+                <p>Retrieving condition details and reference links...</p>
+            </div>
+        }
+        @* State 2: data is available, so condition, definition, and links are displayed *@
+        else if (HasSearchResult)
+        {
             <div class="info-block">
                 <h2>Condition:</h2>
-                <p><strong>@searchCode.ToUpper().Trim()</strong> - @primaryEntry.Title.Value</p>
+                <p><strong>@ConditionCodeLabel</strong> - @ConditionTitle</p>
             </div>
 
             <div class="info-block">
                 <h2>Definition</h2>
-                <p>@((MarkupString)primaryEntry.Summary.Value)</p>
+                <p>@((MarkupString)ConditionDefinitionHtml)</p>
             </div>
 
             <div class="medline-links-box">
                 <h3>Medline Plus Links:</h3>
                 <p>Patient education resources from MedlinePlus:</p>
-                <ul class="medline-links-list" style="padding-left: 20px; margin-top: 10px;">
-                    @foreach (var link in primaryEntry.Links)
-                    {
-                        <li style="margin-bottom: 5px;">
-                            <a href="@link.Href" target="_blank" rel="noopener noreferrer" style="color: #0057b8; text-decoration: underline;">
-                                View Official Reference Document (@link.Rel)
-                            </a>
-                        </li>
-                    }
-                </ul>
+                @* If the record includes valid links, list them; otherwise show a fallback *@
+                @if (ConditionLinks.Any())
+                {
+                    <ul class="medline-links-list">
+                        @foreach (var link in ConditionLinks)
+                        {
+                            <li class="medline-links-item">
+                                <a href="@link.Href" target="_blank" rel="noopener noreferrer">
+                                    @GetLinkLabel(link)
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No links are available for this condition.</p>
+                }
             </div>
         }
+        @* State 3: the API returned an error or an exception occurred *@
         else if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="info-block error-state" style="border-left: 4px solid #dc3545; padding-left: 15px;">
@@ -67,6 +82,7 @@
         }
         else
         {
+            @* State 4: initial view before any search is performed *@
             <div class="info-block empty-state">
                 <h2>No Active Search</h2>
                 <p>Please type an explicit diagnostic lookup value above (e.g., <code>E11.9</code>) to explore unified clinical index definitions.</p>
@@ -120,6 +136,7 @@
 </div>
 
 @code {
+    private string searchInputText = string.Empty;
     private string searchCode = string.Empty;
     private bool isSearching = false;
     private string errorMessage = string.Empty;
@@ -127,26 +144,55 @@
     // Strongly typed model holds the deserialized structure live
     private MedlineRoot? searchResult;
 
+    // Indicates whether at least one entry was returned by Medline
+    private bool HasSearchResult => searchResult?.Feed?.Entries?.Any() == true;
+
+    // Selects the first entry as the primary result displayed in the UI
+    private MedlineEntry? PrimaryEntry => searchResult?.Feed?.Entries?.FirstOrDefault();
+
+    // Normalizes the searched code so it is displayed consistently on screen
+    private string ConditionCodeLabel => string.IsNullOrWhiteSpace(searchCode)
+        ? "Unknown"
+        : searchCode.ToUpperInvariant().Trim();
+
+    // Condition title with fallback when the API does not return one
+    private string ConditionTitle => string.IsNullOrWhiteSpace(PrimaryEntry?.Title?.Value)
+        ? "Condition title unavailable"
+        : PrimaryEntry.Title.Value;
+
+    // Definition with HTML fallback to preserve summary formatting
+    private string ConditionDefinitionHtml => string.IsNullOrWhiteSpace(PrimaryEntry?.Summary?.Value)
+        ? "<em>No definition is available for this condition.</em>"
+        : PrimaryEntry.Summary.Value;
+
+    // Filters out links without URLs to avoid broken anchors in the UI
+    private IReadOnlyList<MedlineLink> ConditionLinks =>
+        PrimaryEntry?.Links?.Where(link => !string.IsNullOrWhiteSpace(link.Href)).ToList()
+        ?? new List<MedlineLink>();
+
     private async Task ExecuteApiSearchAsync()
     {
-        if (string.IsNullOrWhiteSpace(searchCode))
+        if (string.IsNullOrWhiteSpace(searchInputText))
             return;
 
         try
         {
+            // Resets state for a new search request
             isSearching = true;
             errorMessage = string.Empty;
             searchResult = null;
 
             // Target the clean backend proxy route we built in Step 2
-            string endpointUrl = $"api/medlineproxy?code={Uri.EscapeDataString(searchCode.Trim())}";
+            string trimmedInput = searchInputText.Trim();
+            searchCode = trimmedInput;
+            string endpointUrl = $"api/medlineproxy?code={Uri.EscapeDataString(trimmedInput)}";
 
             // Directly read and stream into your Shared model array structure
             searchResult = await Http.GetFromJsonAsync<MedlineRoot>(endpointUrl);
 
             if (searchResult?.Feed?.Entries == null || !searchResult.Feed.Entries.Any())
             {
-                errorMessage = $"No unified clinical matching records returned for index entry: {searchCode}";
+                errorMessage = $"No unified clinical matching records returned for index entry: {trimmedInput}";
             }
         }
         catch (Exception ex)
@@ -166,5 +212,14 @@
         {
             await ExecuteApiSearchAsync();
         }
+    }
+
+    private static string GetLinkLabel(MedlineLink link)
+    {
+        // Builds a user-friendly label and uses a fallback when "rel" is missing
+        if (string.IsNullOrWhiteSpace(link.Rel))
+            return "View Official Reference Document";
+
+        return $"View Official Reference Document ({link.Rel})";
     }
 }
