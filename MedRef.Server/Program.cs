@@ -1,6 +1,42 @@
 using MedRef.Server.Services;
+using MongoDB.Driver;
+using MedRef.Server.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// =========================================================================
+// MONGODB CONFIGURATION & SERVICE PATTERNS
+// =========================================================================
+
+// 1. Bind the configuration keys
+// This grabs the dummy structure from appsettings.json and overlays your secret keys 
+// from your local machine's user-secrets store.
+var mongoDbSettings = builder.Configuration
+    .GetSection("MongoDbSettings")
+    .Get<MongoDbSettings>()
+    ?? throw new InvalidOperationException("MongoDB settings are missing from configuration.");
+
+// 2. Register IMongoClient as a Singleton
+// This sets up the actual connection pool to your Atlas cluster. It's a heavy 
+// process, so it only runs once for the lifecycle of your server.
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    return new MongoClient(mongoDbSettings.ConnectionString);
+});
+
+// 3. Register IMongoDatabase as a Singleton
+// This pulls the active client factory we registered above and points it directly 
+// at your 'MedRefDB' database context.
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(mongoDbSettings.DatabaseName);
+});
+
+// =========================================================================
+
+// Your existing services continue below (e.g., builder.Services.AddControllers())
+builder.Services.AddControllers();
 
 // Services
 builder.Services.AddEndpointsApiExplorer();
@@ -21,7 +57,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "https://medreftool.netlify.app",
-                "http://localhost:5124"
+                "http://localhost:5124",
+                "http://localhost:5265"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
