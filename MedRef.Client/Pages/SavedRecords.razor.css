@@ -1,0 +1,157 @@
+.records-table-wrapper {
+  margin-top: 1rem;
+  border: 1px solid #d7e2ec;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 8px 24px rgba(18, 52, 77, 0.08);
+}
+
+.records-search-bar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.saved-search-input {
+  width: min(320px, 100%);
+  border: 1px solid #bfcddd;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.95rem;
+  color: #12344d;
+  outline: none;
+}
+
+.saved-search-input::placeholder {
+  color: #6f8598;
+}
+
+.saved-search-input:focus {
+  border-color: #0a9396;
+  box-shadow: 0 0 0 3px rgba(10, 147, 150, 0.16);
+}
+
+.records-table-scroll {
+  overflow: auto;
+  margin-top: 10px;
+  border-radius: 10px;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+  border: 1px solid #c9d9e7;
+}
+
+.records-table th,
+.records-table td {
+  padding: 0.8rem 0.9rem;
+  text-align: left;
+  border-right: 1px solid #e5edf4;
+  border-bottom: 1px solid #e5edf4;
+  vertical-align: top;
+}
+
+.records-table th {
+  background-color: #1a5276;
+  color: #ffffff;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.records-table th:last-child,
+.records-table td:last-child {
+  border-right: 0;
+}
+
+.records-table td {
+  color: #294a63;
+  font-size: 0.94rem;
+}
+
+.records-table tbody tr:hover {
+  background-color: #fbfdff;
+}
+
+.records-table a {
+  color: #0057b8;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.actions-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.action-button {
+  border: 1px solid #c9d9e7;
+  border-radius: 8px;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background-color: #f1f7fc;
+}
+
+.action-button.danger {
+  border-color: #e6c6c7;
+}
+
+.action-button.danger:hover {
+  background-color: #fff3f3;
+}
+
+.action-icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.icon-pencil {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2312344d' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 20 4.2-1 9.1-9.1a2 2 0 0 0 0-2.8l-.4-.4a2 2 0 0 0-2.8 0L5 15.8 4 20z'/%3E%3C/svg%3E");
+}
+
+.icon-trash {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f2a2c' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16'/%3E%3Cpath d='M9 7V5h6v2'/%3E%3Cpath d='m7 7 .8 12h8.4L17 7'/%3E%3C/svg%3E");
+}
+
+.saved-records-footer {
+  margin-top: 20px;
+  text-align: center;
+  color: #2c3e50;
+}
+
+.saved-records-footer p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.saved-records-footer a {
+  display: inline-block;
+  margin-top: 0.35rem;
+  color: #1b5f8c;
+  text-decoration: underline;
+}
+
+.saved-records-footer a:hover {
+  color: #0d3f61;
+}
+
+@media (max-width: 900px) {
+  .records-table {
+    min-width: 760px;
+  }
+}
