@@ -1,18 +1,38 @@
-﻿<nav class="sidebar-nav" aria-label="Main pages">
-    <h2 class="sidebar-title">Pages</h2>
+﻿@using Microsoft.AspNetCore.Components.Authorization
 
-    <NavLink class="page-link" href="icd10-search">
-        <span class="menu-icon icon-search" aria-hidden="true"></span>
-        <span>ICD-10 Search</span>
+<nav class="sidebar-nav">
+
+    <h2 class="sidebar-title">
+        Pages
+    </h2>
+
+    <NavLink class="page-link"
+             href="icd10-search">
+
+        ICD-10 Search
+
     </NavLink>
 
-    <NavLink class="page-link" href="saved-records">
-        <span class="menu-icon icon-folder" aria-hidden="true"></span>
-        <span>Saved Records</span>
+    <AuthorizeView>
+
+        <Authorized>
+
+            <NavLink class="page-link"
+                     href="saved-records">
+
+                Saved Records
+
+            </NavLink>
+
+        </Authorized>
+
+    </AuthorizeView>
+
+    <NavLink class="page-link"
+             href="help">
+
+        Help
+
     </NavLink>
 
-    <NavLink class="page-link" href="help">
-        <span class="menu-icon icon-help" aria-hidden="true"></span>
-        <span>Help</span>
-    </NavLink>
 </nav>

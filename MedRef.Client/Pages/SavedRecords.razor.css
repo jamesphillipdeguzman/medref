@@ -155,3 +155,69 @@
     min-width: 760px;
   }
 }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,.45);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.modal-container {
+    background: white;
+
+    width: 650px;
+    max-width: 90%;
+
+    border-radius: 12px;
+
+    padding: 25px;
+}
+
+.notes-textarea {
+    width: 100%;
+    min-height: 180px;
+
+    padding: 12px;
+
+    border-radius: 8px;
+    border: 1px solid #ccc;
+
+    resize: vertical;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+.save-button {
+    background: #0a9396;
+    color: white;
+
+    border: none;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+}
+
+.cancel-button {
+    background: #ddd;
+
+    border: none;
+
+    padding: 10px 18px;
+
+    border-radius: 8px;
+}

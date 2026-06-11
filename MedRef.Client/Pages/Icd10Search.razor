@@ -2,6 +2,7 @@
 @inject HttpClient Http
 @using MedRef.Shared.Models
 @using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>ICD-10 Search</PageTitle>
 
@@ -89,50 +90,55 @@
             </div>
         }
     </section>
+    <AuthorizeView>
 
-    <section class="result-right">
-        <h3 class="saved-codes-title">SAVED CODES</h3>
+        <Authorized>
+            <section class="result-right">
+                <h3 class="saved-codes-title">SAVED CODES</h3>
 
-        <div class="disease-card">
-            <div class="card-top">
-                <span class="action-icon icon-person" aria-hidden="true"></span>
-                <span class="disease-code">A10.1</span>
-            </div>
-            <p class="disease-name">Disease Name: Hypertension</p>
-            <div class="card-actions">
-                <button class="action-button" type="button">
-                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
-                    Edit Notes
-                </button>
-                <button class="action-button danger" type="button">
-                    <span class="action-icon icon-trash" aria-hidden="true"></span>
-                    Delete
-                </button>
-            </div>
-        </div>
+                <div class="disease-card">
+                    <div class="card-top">
+                        <span class="action-icon icon-person" aria-hidden="true"></span>
+                        <span class="disease-code">A10.1</span>
+                    </div>
+                    <p class="disease-name">Disease Name: Hypertension</p>
+                    <div class="card-actions">
+                        <button class="action-button" type="button">
+                            <span class="action-icon icon-pencil" aria-hidden="true"></span>
+                            Edit Notes
+                        </button>
+                        <button class="action-button danger" type="button">
+                            <span class="action-icon icon-trash" aria-hidden="true"></span>
+                            Delete
+                        </button>
+                    </div>
+                </div>
 
-        <div class="disease-card">
-            <div class="card-top">
-                <span class="action-icon icon-person" aria-hidden="true"></span>
-                <span class="disease-code">B22.4</span>
-            </div>
-            <p class="disease-name">Disease Name: Asthma</p>
-            <div class="card-actions">
-                <button class="action-button" type="button">
-                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
-                    Edit Notes
-                </button>
-                <button class="action-button danger" type="button">
-                    <span class="action-icon icon-trash" aria-hidden="true"></span>
-                    Delete
-                </button>
-            </div>
-        </div>
+                <div class="disease-card">
+                    <div class="card-top">
+                        <span class="action-icon icon-person" aria-hidden="true"></span>
+                        <span class="disease-code">B22.4</span>
+                    </div>
+                    <p class="disease-name">Disease Name: Asthma</p>
+                    <div class="card-actions">
+                        <button class="action-button" type="button">
+                            <span class="action-icon icon-pencil" aria-hidden="true"></span>
+                            Edit Notes
+                        </button>
+                        <button class="action-button danger" type="button">
+                            <span class="action-icon icon-trash" aria-hidden="true"></span>
+                            Delete
+                        </button>
+                    </div>
+                </div>
 
-        <div class="favorites-row">
-            <button class="favorites-button" type="button">SAVE TO FAVORITES</button>
-        </div>
-    </section>
+                <div class="favorites-row">
+                    <button class="favorites-button" type="button">SAVE TO FAVORITES</button>
+                </div>
+            </section>
+        
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 @code {
