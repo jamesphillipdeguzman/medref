@@ -1,6 +1,7 @@
 using MedRef.Server.Services;
 using MongoDB.Driver;
 using MedRef.Server.Configurations;
+using MedRef.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,12 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoDbSettings.DatabaseName);
+});
+
+builder.Services.AddSingleton(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<SavedRecord>("SavedRecords");
 });
 
 // =========================================================================
@@ -88,6 +95,63 @@ async (string code, IMedlineService medlineService, CancellationToken ct) =>
     return data is not null
         ? Results.Ok(data)
         : Results.NotFound($"No Medline data found for {code}");
+});
+
+app.MapPost("/api/savedrecords",
+async (
+    SavedRecord record,
+    IMongoCollection<SavedRecord> collection) =>
+{
+    if (string.IsNullOrWhiteSpace(record.Id))
+    {
+        record.Id = Guid.NewGuid().ToString();
+    }
+
+    await collection.InsertOneAsync(record);
+
+    return Results.Ok(record);
+});
+
+app.MapGet("/api/savedrecords",
+async (IMongoCollection<SavedRecord> collection) =>
+{
+    var records = await collection
+        .Find(_ => true)
+        .ToListAsync();
+
+    return Results.Ok(records);
+});
+
+app.MapPut("/api/savedrecords/{id}",
+async (
+    string id,
+    SavedRecord updatedRecord,
+    IMongoCollection<SavedRecord> collection) =>
+{
+    updatedRecord.Id = id;
+
+    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
+
+    await collection.ReplaceOneAsync(
+        filter,
+        updatedRecord);
+
+    return Results.Ok(updatedRecord);
+});
+
+app.MapDelete("/api/savedrecords/{id}",
+async (
+    string id,
+    IMongoCollection<SavedRecord> collection) =>
+{
+    var filter =
+        Builders<SavedRecord>.Filter.Eq(
+            x => x.Id,
+            id);
+
+    await collection.DeleteOneAsync(filter);
+
+    return Results.Ok();
 });
 
 app.Run();
