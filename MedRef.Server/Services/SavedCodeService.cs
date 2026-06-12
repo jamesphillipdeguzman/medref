@@ -7,12 +7,10 @@ namespace MedRef.Server.Services
     {
         private readonly IMongoCollection<SavedCode> _savedCodesCollection;
 
-        public SavedCodeService(IMongoClient mongoClient)
+        public SavedCodeService(IMongoDatabase mongoDatabase)
         {
-            var database = mongoClient.GetDatabase("MedRefDB");
-            _savedCodesCollection = database.GetCollection<SavedCode>("SavedCodes");
+            _savedCodesCollection = mongoDatabase.GetCollection<SavedCode>("SavedCodes");
         }
-
         public async Task<List<SavedCode>> GetSavedCodesAsync()
         {
             return await _savedCodesCollection.Find(_ => true).ToListAsync();

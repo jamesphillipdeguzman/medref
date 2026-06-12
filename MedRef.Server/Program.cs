@@ -105,9 +105,9 @@ app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
 // Endpoint to add a new saved code
 app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService savedCodeService) =>
 {
-    if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.Description))
+    if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.DiseaseName))
     {
-        return Results.BadRequest("Both CodeValue and Description are required.");
+        return Results.BadRequest("Both CodeValue and DiseaseName are required.");
     }
 
     var createdCode = await savedCodeService.AddSavedCodeAsync(newCode);
