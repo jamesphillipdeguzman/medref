@@ -1,6 +1,7 @@
 using MedRef.Server.Services;
 using MongoDB.Driver;
 using MedRef.Server.Configurations;
+using MedRef.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,10 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoDbSettings.DatabaseName);
 });
+
+// 4. Register your custom services that depend on IMongoDatabase
+// This allows you to inject IMongoDatabase into any service that needs it, like your SavedCodeService.
+builder.Services.AddScoped<SavedCodeService>();
 
 // =========================================================================
 
@@ -88,6 +93,25 @@ async (string code, IMedlineService medlineService, CancellationToken ct) =>
     return data is not null
         ? Results.Ok(data)
         : Results.NotFound($"No Medline data found for {code}");
+});
+
+// Endpoint to retrieve all saved codes
+app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
+{
+    var codes = await savedCodeService.GetSavedCodesAsync();
+    return Results.Ok(codes);
+});
+
+// Endpoint to add a new saved code
+app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService savedCodeService) =>
+{
+    if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.DiseaseName))
+    {
+        return Results.BadRequest("Both CodeValue and DiseaseName are required.");
+    }
+
+    var createdCode = await savedCodeService.AddSavedCodeAsync(newCode);
+    return Results.Created($"/api/savedcodes/{createdCode.Id}", createdCode);
 });
 
 app.Run();
