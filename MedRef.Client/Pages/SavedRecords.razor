@@ -1,8 +1,17 @@
 @page "/saved-records"
 
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@using MedRef.Shared.Models
+@using System.Net.Http.Json
+
 <PageTitle>Saved Records</PageTitle>
 
 <h1>Saved Records</h1>
+
+<p>Total Records: @records.Count</p>
+<p style="color:red">@errorMessage</p>
 
 <div class="records-table-wrapper">
 	<div class="records-search-bar">
@@ -20,228 +29,47 @@
 				<th>ACTIONS</th>
 				</tr>
 			</thead>
-			<tbody>
-			<tr>
-				<td>E11.9</td>
-				<td>Type 2 diabetes mellitus without complications</td>
-				<td>Follow-up every 3 months. Monitor HbA1c trends.</td>
-				<td>
-					<a href="https://medlineplus.gov/diabetes.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/diabetes.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>I10</td>
-				<td>Essential (primary) hypertension</td>
-				<td>Encourage daily BP log and low-sodium diet adherence.</td>
-				<td>
-					<a href="https://medlineplus.gov/highbloodpressure.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/highbloodpressure.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>J45.909</td>
-				<td>Unspecified asthma, uncomplicated</td>
-				<td>Review inhaler technique during next visit.</td>
-				<td>
-					<a href="https://medlineplus.gov/asthma.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/asthma.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>M54.50</td>
-				<td>Low back pain, unspecified</td>
-				<td>Recommend stretching routine and posture education.</td>
-				<td>
-					<a href="https://medlineplus.gov/backpain.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/backpain.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>K21.9</td>
-				<td>Gastro-esophageal reflux disease without esophagitis</td>
-				<td>Avoid late meals and trigger foods after 7 PM.</td>
-				<td>
-					<a href="https://medlineplus.gov/gerd.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/gerd.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>E78.5</td>
-				<td>Hyperlipidemia, unspecified</td>
-				<td>Recheck lipid panel in 12 weeks.</td>
-				<td>
-					<a href="https://medlineplus.gov/highbloodcholesterol.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/highbloodcholesterol.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>F41.1</td>
-				<td>Generalized anxiety disorder</td>
-				<td>Continue CBT referral and weekly symptom tracking.</td>
-				<td>
-					<a href="https://medlineplus.gov/anxiety.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/anxiety.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>N39.0</td>
-				<td>Urinary tract infection, site not specified</td>
-				<td>Hydration counseling and red-flag symptom review.</td>
-				<td>
-					<a href="https://medlineplus.gov/urinarytractinfections.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/urinarytractinfections.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>L40.9</td>
-				<td>Psoriasis, unspecified</td>
-				<td>Track flare triggers and moisturization adherence.</td>
-				<td>
-					<a href="https://medlineplus.gov/psoriasis.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/psoriasis.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>G43.909</td>
-				<td>Migraine, unspecified, not intractable</td>
-				<td>Document headache diary and sleep schedule consistency.</td>
-				<td>
-					<a href="https://medlineplus.gov/migraine.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/migraine.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			<tr>
-				<td>R51.9</td>
-				<td>Headache, unspecified</td>
-				<td>Increase hydration and assess screen-time exposure.</td>
-				<td>
-					<a href="https://medlineplus.gov/headache.html" target="_blank" rel="noopener noreferrer">
-						https://medlineplus.gov/headache.html
-					</a>
-				</td>
-				<td>
-					<div class="actions-cell">
-						<button class="action-button" type="button" aria-label="Edit record">
-							<span class="action-icon icon-pencil" aria-hidden="true">✎</span>
-						</button>
-						<button class="action-button danger" type="button" aria-label="Delete record">
-							<span class="action-icon icon-trash" aria-hidden="true">🗑</span>
-						</button>
-					</div>
-				</td>
-			</tr>
-			</tbody>
+
+				<tbody>
+
+				@foreach (var record in records)
+				{
+					<tr>
+
+						<td>@record.Code</td>
+
+						<td>@record.DiseaseName</td>
+
+						<td>@record.Notes</td>
+
+						<td>
+							<a href="@record.MedlineUrl"
+							target="_blank">
+								@record.MedlineUrl
+							</a>
+						</td>
+
+						<td>
+							<div class="actions-cell">
+
+								<button class="action-button"
+										@onclick="() => OpenEditModal(record)">
+									<span class="action-icon icon-pencil"></span>
+								</button>
+								<button
+									class="action-button danger"
+									@onclick="() => DeleteRecordAsync(record.Id)">
+									<span class="action-icon icon-trash"></span>
+								</button>
+
+							</div>
+						</td>
+
+					</tr>
+				}
+
+				</tbody>
+		
 		</table>
 	</div>
 </div>
@@ -251,5 +79,122 @@
 	<a href="#">Apps Links Footer Footer Page More</a>
 </div>
 
+@if (showEditModal && selectedRecord is not null)
+{
+    <div class="modal-overlay">
+
+        <div class="modal-container">
+
+            <h3>Edit Notes</h3>
+
+            <p>
+                <strong>@selectedRecord.Code</strong>
+            </p>
+
+            <textarea
+                class="notes-textarea"
+                @bind="selectedRecord.Notes">
+            </textarea>
+
+            <div class="modal-buttons">
+
+                <button
+                    class="save-button"
+                    @onclick="SaveRecordAsync">
+                    Save
+                </button>
+
+                <button
+                    class="cancel-button"
+                    @onclick="CloseEditModal">
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
 
 
+@code {
+
+	private string errorMessage = "";
+
+    private List<SavedRecord> records = new();
+
+    private SavedRecord? selectedRecord;
+
+    private bool showEditModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecordsAsync();
+    }
+
+	private async Task LoadRecordsAsync()
+	{
+		try
+		{
+			records =
+				await Http.GetFromJsonAsync<List<SavedRecord>>(
+					"api/savedrecords")
+				?? new();
+
+			errorMessage = $"Loaded {records.Count} records";
+		}
+		catch (Exception ex)
+		{
+			errorMessage = ex.ToString();
+			records = new();
+		}
+	}
+
+    private void OpenEditModal(SavedRecord record)
+    {
+        selectedRecord = record;
+        showEditModal = true;
+    }
+
+    private void CloseEditModal()
+    {
+        showEditModal = false;
+        selectedRecord = null;
+    }
+
+	private async Task SaveRecordAsync()
+	{
+		if (selectedRecord is null)
+			return;
+
+		try
+		{
+			await Http.PutAsJsonAsync(
+				$"api/savedrecords/{selectedRecord.Id}",
+				selectedRecord);
+
+			await LoadRecordsAsync();
+
+			showEditModal = false;
+			selectedRecord = null;
+		}
+		catch
+		{
+		}
+	}
+
+	private async Task DeleteRecordAsync(string id)
+{
+    try
+    {
+        await Http.DeleteAsync(
+            $"api/savedrecords/{id}");
+
+        await LoadRecordsAsync();
+    }
+    catch
+    {
+    }
+}
+}

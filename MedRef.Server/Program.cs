@@ -10,24 +10,18 @@ var builder = WebApplication.CreateBuilder(args);
 // =========================================================================
 
 // 1. Bind the configuration keys
-// This grabs the dummy structure from appsettings.json and overlays your secret keys 
-// from your local machine's user-secrets store.
 var mongoDbSettings = builder.Configuration
     .GetSection("MongoDbSettings")
     .Get<MongoDbSettings>()
     ?? throw new InvalidOperationException("MongoDB settings are missing from configuration.");
 
 // 2. Register IMongoClient as a Singleton
-// This sets up the actual connection pool to your Atlas cluster. It's a heavy 
-// process, so it only runs once for the lifecycle of your server.
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     return new MongoClient(mongoDbSettings.ConnectionString);
 });
 
 // 3. Register IMongoDatabase as a Singleton
-// This pulls the active client factory we registered above and points it directly 
-// at your 'MedRefDB' database context.
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
@@ -35,12 +29,17 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
 });
 
 // 4. Register your custom services that depend on IMongoDatabase
-// This allows you to inject IMongoDatabase into any service that needs it, like your SavedCodeService.
 builder.Services.AddScoped<SavedCodeService>();
+
+// 5. Register Jeremy's collection dependency so his endpoints can resolve it
+builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<SavedRecord>("SavedRecords");
+});
 
 // =========================================================================
 
-// Your existing services continue below (e.g., builder.Services.AddControllers())
 builder.Services.AddControllers();
 
 // Services
@@ -81,7 +80,11 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseCors("AllowNetlify");
 
-// API
+// =========================================================================
+// API ENDPOINTS
+// =========================================================================
+
+// Medline Proxy
 app.MapGet("/api/medlineproxy",
 async (string code, IMedlineService medlineService, CancellationToken ct) =>
 {
@@ -95,14 +98,55 @@ async (string code, IMedlineService medlineService, CancellationToken ct) =>
         : Results.NotFound($"No Medline data found for {code}");
 });
 
-// Endpoint to retrieve all saved codes
+// Jeremy's Saved Records Endpoints
+app.MapPost("/api/savedrecords",
+async (SavedRecord record, IMongoCollection<SavedRecord> collection) =>
+{
+    if (string.IsNullOrWhiteSpace(record.Id))
+    {
+        record.Id = Guid.NewGuid().ToString();
+    }
+
+    await collection.InsertOneAsync(record);
+    return Results.Ok(record);
+});
+
+app.MapGet("/api/savedrecords",
+async (IMongoCollection<SavedRecord> collection) =>
+{
+    var records = await collection
+        .Find(_ => true)
+        .ToListAsync();
+
+    return Results.Ok(records);
+});
+
+app.MapPut("/api/savedrecords/{id}",
+async (string id, SavedRecord updatedRecord, IMongoCollection<SavedRecord> collection) =>
+{
+    updatedRecord.Id = id;
+    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
+
+    await collection.ReplaceOneAsync(filter, updatedRecord);
+    return Results.Ok(updatedRecord);
+});
+
+app.MapDelete("/api/savedrecords/{id}",
+async (string id, IMongoCollection<SavedRecord> collection) =>
+{
+    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
+
+    await collection.DeleteOneAsync(filter);
+    return Results.Ok();
+});
+
+// Your Polished Saved Codes Endpoints
 app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
 {
     var codes = await savedCodeService.GetSavedCodesAsync();
     return Results.Ok(codes);
 });
 
-// Endpoint to add a new saved code
 app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService savedCodeService) =>
 {
     if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.DiseaseName))
