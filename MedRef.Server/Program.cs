@@ -10,31 +10,29 @@ var builder = WebApplication.CreateBuilder(args);
 // =========================================================================
 
 // 1. Bind the configuration keys
-// This grabs the dummy structure from appsettings.json and overlays your secret keys 
-// from your local machine's user-secrets store.
 var mongoDbSettings = builder.Configuration
     .GetSection("MongoDbSettings")
     .Get<MongoDbSettings>()
     ?? throw new InvalidOperationException("MongoDB settings are missing from configuration.");
 
 // 2. Register IMongoClient as a Singleton
-// This sets up the actual connection pool to your Atlas cluster. It's a heavy 
-// process, so it only runs once for the lifecycle of your server.
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     return new MongoClient(mongoDbSettings.ConnectionString);
 });
 
 // 3. Register IMongoDatabase as a Singleton
-// This pulls the active client factory we registered above and points it directly 
-// at your 'MedRefDB' database context.
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoDbSettings.DatabaseName);
 });
 
-builder.Services.AddSingleton(sp =>
+// 4. Register your custom services that depend on IMongoDatabase
+builder.Services.AddScoped<SavedCodeService>();
+
+// 5. Register Jeremy's collection dependency so his endpoints can resolve it
+builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<SavedRecord>("SavedRecords");
@@ -42,7 +40,6 @@ builder.Services.AddSingleton(sp =>
 
 // =========================================================================
 
-// Your existing services continue below (e.g., builder.Services.AddControllers())
 builder.Services.AddControllers();
 
 // Services
@@ -83,7 +80,11 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseCors("AllowNetlify");
 
-// API
+// =========================================================================
+// API ENDPOINTS
+// =========================================================================
+
+// Medline Proxy
 app.MapGet("/api/medlineproxy",
 async (string code, IMedlineService medlineService, CancellationToken ct) =>
 {
@@ -97,10 +98,9 @@ async (string code, IMedlineService medlineService, CancellationToken ct) =>
         : Results.NotFound($"No Medline data found for {code}");
 });
 
+// Jeremy's Saved Records Endpoints
 app.MapPost("/api/savedrecords",
-async (
-    SavedRecord record,
-    IMongoCollection<SavedRecord> collection) =>
+async (SavedRecord record, IMongoCollection<SavedRecord> collection) =>
 {
     if (string.IsNullOrWhiteSpace(record.Id))
     {
@@ -108,7 +108,6 @@ async (
     }
 
     await collection.InsertOneAsync(record);
-
     return Results.Ok(record);
 });
 
@@ -123,35 +122,40 @@ async (IMongoCollection<SavedRecord> collection) =>
 });
 
 app.MapPut("/api/savedrecords/{id}",
-async (
-    string id,
-    SavedRecord updatedRecord,
-    IMongoCollection<SavedRecord> collection) =>
+async (string id, SavedRecord updatedRecord, IMongoCollection<SavedRecord> collection) =>
 {
     updatedRecord.Id = id;
-
     var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
 
-    await collection.ReplaceOneAsync(
-        filter,
-        updatedRecord);
-
+    await collection.ReplaceOneAsync(filter, updatedRecord);
     return Results.Ok(updatedRecord);
 });
 
 app.MapDelete("/api/savedrecords/{id}",
-async (
-    string id,
-    IMongoCollection<SavedRecord> collection) =>
+async (string id, IMongoCollection<SavedRecord> collection) =>
 {
-    var filter =
-        Builders<SavedRecord>.Filter.Eq(
-            x => x.Id,
-            id);
+    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
 
     await collection.DeleteOneAsync(filter);
-
     return Results.Ok();
+});
+
+// Your Polished Saved Codes Endpoints
+app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
+{
+    var codes = await savedCodeService.GetSavedCodesAsync();
+    return Results.Ok(codes);
+});
+
+app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService savedCodeService) =>
+{
+    if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.DiseaseName))
+    {
+        return Results.BadRequest("Both CodeValue and DiseaseName are required.");
+    }
+
+    var createdCode = await savedCodeService.AddSavedCodeAsync(newCode);
+    return Results.Created($"/api/savedcodes/{createdCode.Id}", createdCode);
 });
 
 app.Run();
