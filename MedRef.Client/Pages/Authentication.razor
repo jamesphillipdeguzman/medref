@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-center align-items-center my-5">
     <div class="text-center">
         <div class="spinner-border text-primary mb-3" role="status"></div>
-        <p class="text-muted">Processing security handshake, please wait...</p>
+        <p class="text-white">Processing security handshake, please wait...</p>
     </div>
 </div>
 
@@ -16,20 +16,18 @@
     {
         if (Action?.ToLower() == "login")
         {
-            // Force the browser to hit your Netlify proxy -> Render login controller endpoint
-            Navigation.NavigateTo("/api/auth/login", forceLoad: true);
+            // Direct routing to the Render container backend to safely pass cookies
+            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/login", forceLoad: true);
         }
         else if (Action?.ToLower() == "logout")
         {
-            Navigation.NavigateTo("/api/auth/logout", forceLoad: true);
+            // Direct routing to clear out backend session state cleanly
+            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/logout", forceLoad: true);
         }
         else
         {
-            // If it's just an unknown state callback, force-refresh identity status and go home
-            if (AuthStateProvider is CustomCookieAuthenticationStateProvider customProvider)
-            {
-                customProvider.VerifyUserSessionExplicitly();
-            }
+            // When returning from Google, drop cleanly onto the home layout
+            // where AuthorizeView naturally checks our login cookies.
             Navigation.NavigateTo("/", forceLoad: true);
         }
     }
