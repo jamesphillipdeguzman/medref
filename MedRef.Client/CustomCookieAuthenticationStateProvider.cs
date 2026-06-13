@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.WebAssembly.Http;
 
-namespace MedRef.Client;
+namespace MedRef.Client; // Make sure this matches your project namespace
 
 public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly HttpClient _httpClient;
+    private readonly AuthenticationState _anonymousSession = new(new ClaimsPrincipal(new ClaimsIdentity()));
 
     public CustomCookieAuthenticationStateProvider(HttpClient httpClient)
     {
@@ -18,44 +18,51 @@ public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvid
     {
         try
         {
-            // 2. REPLACE GETFROMJSONASYNC WITH A MANUAL REQUEST LAYER:
-            var request = new HttpRequestMessage(HttpMethod.Get, "api/auth/user");
+            // Calls your AuthController via the Netlify proxy path
+            var response = await _httpClient.GetFromJsonAsync<UserSessionResult>("api/auth/user");
 
-            // This forces the browser sandbox to pass your secure authentication cookies along
-            request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
-
-            var response = await _httpClient.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+            if (response == null || !response.IsAuthenticated)
             {
-                var userInfo = await response.Content.ReadFromJsonAsync<UserDto>();
+                return _anonymousSession;
+            }
 
-                if (userInfo != null && userInfo.IsAuthenticated)
+            // Using a standard placeholder string for the production auth type
+            var identity = new ClaimsIdentity("CookieAuth");
+
+            if (response.Claims != null)
+            {
+                foreach (var claim in response.Claims)
                 {
-                    var claims = userInfo.Claims.Select(c => new Claim(c.Type, c.Value));
-                    var identity = new ClaimsIdentity(claims, "CookieAuth");
-                    return new AuthenticationState(new ClaimsPrincipal(identity));
+                    identity.AddClaim(new Claim(claim.Type, claim.Value));
                 }
             }
+
+            var principal = new ClaimsPrincipal(identity);
+            return new AuthenticationState(principal);
         }
         catch
         {
-            // If the server can't be reached or the session cookie is expired/absent
+            return _anonymousSession;
         }
-
-        // Return an empty, unauthenticated principal state
-        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
 
-    private class UserDto
+    // =========================================================================
+    // ADD THIS MISSING METHOD HERE TO FIX THE COMPILER ERROR
+    // =========================================================================
+    public void VerifyUserSessionExplicitly()
     {
-        public bool IsAuthenticated { get; set; }
-        public List<ClaimDto> Claims { get; set; } = new();
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
+}
 
-    private class ClaimDto
-    {
-        public string Type { get; set; } = string.Empty;
-        public string Value { get; set; } = string.Empty;
-    }
+public class UserSessionResult
+{
+    public bool IsAuthenticated { get; set; }
+    public List<ClaimData>? Claims { get; set; }
+}
+
+public class ClaimData
+{
+    public string Type { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }
