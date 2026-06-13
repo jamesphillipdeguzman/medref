@@ -4,11 +4,12 @@ using MedRef.Server.Configurations;
 using MedRef.Shared.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================================================================
-// MONGODB CONFIGURATION & SERVICE PATTERNS
+// 1. REGISTER ALL SERVICES & CONFIGURATIONS (MUST BE BEFORE builder.Build)
 // =========================================================================
 
 var mongoDbSettings = builder.Configuration
@@ -34,10 +35,6 @@ builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
     var database = sp.GetRequiredService<IMongoDatabase>();
     return database.GetCollection<SavedRecord>("SavedRecords");
 });
-
-// =========================================================================
-// GOOGLE OAUTH 2.0 & BFF COOKIE CONFIGURATION
-// =========================================================================
 
 builder.Services.AddAuthentication(options =>
     {
@@ -65,9 +62,6 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorization();
-
-// =========================================================================
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -80,7 +74,6 @@ builder.Services.AddHttpClient("MedlinePlus", client =>
     client.Timeout = TimeSpan.FromSeconds(10);
 });
 
-// CORS configuration to allow requests from Netlify frontend and local development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNetlify", policy =>
@@ -96,7 +89,16 @@ builder.Services.AddCors(options =>
     });
 });
 
+// =========================================================================
+// 2. BUILD THE APP (CALL THIS EXACTLY ONCE HERE)
+// =========================================================================
 var app = builder.Build();
+
+// CRITICAL PROXY FIX: Forwarded headers must execute before any routing or auth middleware
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -112,7 +114,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // =========================================================================
-// API ENDPOINTS
+// 3. API ENDPOINTS & ROUTING Map
 // =========================================================================
 
 // Medline Proxy
@@ -189,7 +191,6 @@ app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService sa
     return Results.Created($"/api/savedcodes/{createdCode.Id}", createdCode);
 });
 
-// CRITICAL FIX LOCATION: Must be explicitly declared right before app.Run()
 app.MapControllers();
 
 app.Run();
