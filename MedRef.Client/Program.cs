@@ -10,17 +10,22 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-
-// resolve the API base address (checks configuration first, falls back to local server port)
-var backendUrl = builder.Configuration["BackendUrl"] ?? "http://localhost:5035/";
+// =========================================================================
+// ENVIRONMENT-AWARE API BASE ADDRESS CONFIGURATION
+// =========================================================================
+var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
+    ? "http://localhost:5035/"
+    : "https://medreftool.netlify.app/";
 
 // Register a single HttpClient instance configured to forward cookies seamlessly
-builder.Services.AddScoped(sp =>
+builder.Services.AddScoped(sp => new HttpClient
 {
-    return new HttpClient { BaseAddress = new Uri(backendUrl) };
+    BaseAddress = new Uri(apiBaseUrl)
 });
 
-// Register standard Blazor authentication state plumbing
+// =========================================================================
+// AUTHENTICATION & CORE PLUMBING
+// =========================================================================
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomCookieAuthenticationStateProvider>();
 
