@@ -1,5 +1,7 @@
 @inject NavigationManager Navigation
+@inject IWebAssemblyHostEnvironment HostEnvironment
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
 <CascadingAuthenticationState>
     <AuthorizeView>
@@ -63,15 +65,15 @@
 @code {
     private void Login()
     {
-        Navigation.NavigateTo(
-            "authentication/login",
-            forceLoad: true);
+        Navigation.NavigateTo($"{BackendUrl}/api/auth/login", forceLoad: true);
     }
 
     private void Logout()
     {
-        Navigation.NavigateTo(
-            "authentication/logout",
-            forceLoad: true);
+        Navigation.NavigateTo($"{BackendUrl}/api/auth/logout", forceLoad: true);
     }
+
+    private string BackendUrl => HostEnvironment.IsDevelopment()
+        ? "http://localhost:5035"
+        : "https://medref-backend-565n.onrender.com";
 }
