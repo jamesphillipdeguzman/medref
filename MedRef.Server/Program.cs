@@ -59,6 +59,8 @@ builder.Services.AddAuthentication(options =>
             ?? throw new InvalidOperationException("Google ClientId is missing.");
         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
             ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+        options.CorrelationCookie.SameSite = SameSiteMode.Lax;
+        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
     });
 
 builder.Services.AddAuthorization();
@@ -108,6 +110,20 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedHeadersOptions);
+
+// Netlify proxies API/OAuth traffic to Render. Force the public origin so Google OAuth
+// uses https://medreftool.netlify.app/signin-google (not the onrender.com host).
+string? publicBaseUrl = app.Configuration["Authentication:PublicBaseUrl"];
+if (!string.IsNullOrWhiteSpace(publicBaseUrl)
+    && Uri.TryCreate(publicBaseUrl, UriKind.Absolute, out Uri? publicUri))
+{
+    app.Use(async (context, next) =>
+    {
+        context.Request.Scheme = publicUri.Scheme;
+        context.Request.Host = new HostString(publicUri.Host, publicUri.IsDefaultPort ? 0 : publicUri.Port);
+        await next();
+    });
+}
 
 if (app.Environment.IsDevelopment())
 {
