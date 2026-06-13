@@ -1,6 +1,5 @@
 @page "/authentication/{action}"
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="d-flex justify-content-center align-items-center my-5">
     <div class="text-center">
@@ -16,18 +15,14 @@
     {
         if (Action?.ToLower() == "login")
         {
-            // Direct routing to the Render container backend to safely pass cookies
             Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/login", forceLoad: true);
         }
         else if (Action?.ToLower() == "logout")
         {
-            // Direct routing to clear out backend session state cleanly
             Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/logout", forceLoad: true);
         }
         else
         {
-            // When returning from Google, drop cleanly onto the home layout
-            // where AuthorizeView naturally checks our login cookies.
             Navigation.NavigateTo("/", forceLoad: true);
         }
     }
