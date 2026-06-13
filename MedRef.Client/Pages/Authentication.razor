@@ -1,5 +1,7 @@
 @page "/authentication/{action}"
 @inject NavigationManager Navigation
+@inject IWebAssemblyHostEnvironment HostEnvironment
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
 <div class="d-flex justify-content-center align-items-center my-5">
     <div class="text-center">
@@ -11,19 +13,23 @@
 @code {
     [Parameter] public string? Action { get; set; }
 
-    protected override async Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         if (Action?.ToLower() == "login")
         {
-            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/login", forceLoad: true);
+            Navigation.NavigateTo(AuthUrl("login"), forceLoad: true);
         }
         else if (Action?.ToLower() == "logout")
         {
-            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/logout", forceLoad: true);
+            Navigation.NavigateTo(AuthUrl("logout"), forceLoad: true);
         }
         else
         {
             Navigation.NavigateTo("/", forceLoad: true);
         }
     }
+
+    private string AuthUrl(string action) => HostEnvironment.IsDevelopment()
+        ? $"http://localhost:5035/api/auth/{action}"
+        : $"/api/auth/{action}";
 }

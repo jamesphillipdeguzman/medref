@@ -65,15 +65,15 @@
 @code {
     private void Login()
     {
-        Navigation.NavigateTo($"{BackendUrl}/api/auth/login", forceLoad: true);
+        Navigation.NavigateTo(AuthUrl("login"), forceLoad: true);
     }
 
     private void Logout()
     {
-        Navigation.NavigateTo($"{BackendUrl}/api/auth/logout", forceLoad: true);
+        Navigation.NavigateTo(AuthUrl("logout"), forceLoad: true);
     }
 
-    private string BackendUrl => HostEnvironment.IsDevelopment()
-        ? "http://localhost:5035"
-        : "https://medref-backend-565n.onrender.com";
+    private string AuthUrl(string action) => HostEnvironment.IsDevelopment()
+        ? $"http://localhost:5035/api/auth/{action}"
+        : $"/api/auth/{action}";
 }
