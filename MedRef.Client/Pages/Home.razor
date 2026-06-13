@@ -53,12 +53,28 @@
 @code {
     private void TriggerGoogleLogin()
     {
-        // Adding the leading '/' ensures it targets medreftool.netlify.app/api/auth/login
-        Navigation.NavigateTo("/api/auth/login", forceLoad: true);
+        string targetUrl = GetApiUrl("api/auth/login");
+        Navigation.NavigateTo(targetUrl, forceLoad: true);
     }
 
     private void TriggerLogout()
     {
-        Navigation.NavigateTo("/api/auth/logout", forceLoad: true);
+        string targetUrl = GetApiUrl("api/auth/logout");
+        Navigation.NavigateTo(targetUrl, forceLoad: true);
+    }
+
+    private string GetApiUrl(string path)
+    {
+        // Check where the client browser is currently standing
+        if (Navigation.BaseUri.Contains("localhost"))
+        {
+            // Local development explicit routing
+            return $"http://localhost:5035/{path}";
+        }
+        else
+        {
+            // Production Render server explicit routing
+            return $"https://medref-api.onrender.com/{path}";
+        }
     }
 }
