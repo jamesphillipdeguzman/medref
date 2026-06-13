@@ -1,11 +1,17 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace MedRef.Client; // Make sure this matches your project namespace
 
 public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvider
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly HttpClient _httpClient;
     private readonly AuthenticationState _anonymousSession = new(new ClaimsPrincipal(new ClaimsIdentity()));
 
@@ -18,27 +24,19 @@ public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvid
     {
         try
         {
-            // Calls your AuthController via the Netlify proxy path
-            var response = await _httpClient.GetFromJsonAsync<UserSessionResult>("api/auth/user");
+            var response = await _httpClient.GetFromJsonAsync<UserSessionResult>("api/auth/user", JsonOptions);
 
             if (response == null || !response.IsAuthenticated)
             {
                 return _anonymousSession;
             }
 
-            // Using a standard placeholder string for the production auth type
-            var identity = new ClaimsIdentity("CookieAuth");
+            var claims = response.Claims?
+                .Select(c => new Claim(c.Type, c.Value))
+                .ToList() ?? [];
 
-            if (response.Claims != null)
-            {
-                foreach (var claim in response.Claims)
-                {
-                    identity.AddClaim(new Claim(claim.Type, claim.Value));
-                }
-            }
-
-            var principal = new ClaimsPrincipal(identity);
-            return new AuthenticationState(principal);
+            var identity = new ClaimsIdentity(claims, authenticationType: "CookieAuth");
+            return new AuthenticationState(new ClaimsPrincipal(identity));
         }
         catch
         {

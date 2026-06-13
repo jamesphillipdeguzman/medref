@@ -1,2 +1,3 @@
-/api/* https://medref-backend-565n.onrender.com/api/:splat  200!
-/* /index.html                                            200
+/api/*         https://medref-backend-565n.onrender.com/api/:splat         200!
+/signin-google https://medref-backend-565n.onrender.com/signin-google     200!
+/*             /index.html                                                  200

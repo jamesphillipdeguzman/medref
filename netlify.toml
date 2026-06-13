@@ -1,4 +1,16 @@
 [[redirects]]
+  from = "/api/*"
+  to = "https://medref-backend-565n.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/signin-google"
+  to = "https://medref-backend-565n.onrender.com/signin-google"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
