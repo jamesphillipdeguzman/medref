@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Home</PageTitle>
 
@@ -7,10 +8,9 @@
 
 <p>
     Welcome to MedRef, your go-to medical reference tool for ICD codes. Whether you're a healthcare professional,
-    student,
-    or simply interested in learning more about medical coding, MedRef provides a comprehensive and user-friendly
-    platform
-    to explore and understand ICD codes.
+    student, or simply interested in learning more about medical coding, MedRef provides a comprehensive and
+    user-friendly
+    platform to explore and understand ICD codes.
 </p>
 
 <hr class="my-4" style="border-color: rgba(255,255,255,0.1);" />
@@ -51,6 +51,15 @@
     </AuthorizeView>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Force-refresh our CustomCookieAuthenticationStateProvider profile status on load
+        if (AuthStateProvider is CustomCookieAuthenticationStateProvider cookieProvider)
+        {
+            cookieProvider.VerifyUserSessionExplicitly();
+        }
+    }
+
     private void TriggerGoogleLogin()
     {
         string targetUrl = GetApiUrl("api/auth/login");
@@ -65,16 +74,15 @@
 
     private string GetApiUrl(string path)
     {
-        // Check where the client browser is currently standing
         if (Navigation.BaseUri.Contains("localhost"))
         {
-            // Local development explicit routing
+            // Local development needs to hit the backend container port directly
             return $"http://localhost:5035/{path}";
         }
         else
         {
-            // Production Render server explicit routing
-            return $"https://medref-backend-565n.onrender.com/{path}";
+            // Production paths MUST use relative Netlify paths to preserve cookie origins!
+            return $"/{path}";
         }
     }
 }
