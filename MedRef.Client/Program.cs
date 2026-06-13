@@ -12,9 +12,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // =========================================================================
 // ENVIRONMENT-AWARE API BASE ADDRESS CONFIGURATION
 // =========================================================================
+// Production must call the backend directly so the auth cookie (set on onrender.com
+// during Google OAuth) is included on credentialed cross-origin API requests.
 var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
     ? "http://localhost:5035/"
-    : "https://medreftool.netlify.app/";
+    : "https://medref-backend-565n.onrender.com/";
 
 // Register HttpClient using a delegating handler to inject credentials natively
 builder.Services.AddScoped(sp =>
