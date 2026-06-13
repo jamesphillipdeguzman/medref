@@ -51,38 +51,17 @@
     </AuthorizeView>
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-        // Force-refresh our CustomCookieAuthenticationStateProvider profile status on load
-        if (AuthStateProvider is CustomCookieAuthenticationStateProvider cookieProvider)
-        {
-            cookieProvider.VerifyUserSessionExplicitly();
-        }
-    }
+    // We removed OnInitializedAsync completely to break the infinite notification re-render loop!
 
     private void TriggerGoogleLogin()
     {
-        string targetUrl = GetApiUrl("api/auth/login");
-        Navigation.NavigateTo(targetUrl, forceLoad: true);
+        // Route through Netlify's backend proxy endpoint directly to preserve cookies
+        Navigation.NavigateTo("https://medreftool.netlify.app/api/auth/login", forceLoad: true);
     }
 
     private void TriggerLogout()
     {
-        string targetUrl = GetApiUrl("api/auth/logout");
-        Navigation.NavigateTo(targetUrl, forceLoad: true);
-    }
-
-    private string GetApiUrl(string path)
-    {
-        if (Navigation.BaseUri.Contains("localhost"))
-        {
-            // Local development needs to hit the backend container port directly
-            return $"http://localhost:5035/{path}";
-        }
-        else
-        {
-            // Production paths MUST use relative Netlify paths to preserve cookie origins!
-            return $"/{path}";
-        }
+        // Route through Netlify's backend proxy endpoint directly to clear cookies
+        Navigation.NavigateTo("https://medreftool.netlify.app/api/auth/logout", forceLoad: true);
     }
 }
