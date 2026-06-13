@@ -120,7 +120,9 @@ if (!string.IsNullOrWhiteSpace(publicBaseUrl)
     app.Use(async (context, next) =>
     {
         context.Request.Scheme = publicUri.Scheme;
-        context.Request.Host = new HostString(publicUri.Host, publicUri.IsDefaultPort ? 0 : publicUri.Port);
+        context.Request.Host = publicUri.IsDefaultPort
+            ? new HostString(publicUri.Host)
+            : new HostString(publicUri.Host, publicUri.Port);
         await next();
     });
 }
