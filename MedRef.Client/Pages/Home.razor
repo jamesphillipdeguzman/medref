@@ -51,6 +51,15 @@
     </AuthorizeView>
 
 @code {
+    protected override void OnInitialized()
+    {
+        // Refresh auth state after Google redirects back to the frontend.
+        if (AuthStateProvider is CustomCookieAuthenticationStateProvider provider)
+        {
+            provider.VerifyUserSessionExplicitly();
+        }
+    }
+
     private void TriggerGoogleLogin()
     {
         // Direct browser routing to the backend container to prevent Netlify loop timeouts

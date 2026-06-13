@@ -45,7 +45,8 @@ builder.Services.AddAuthentication(options =>
     {
         options.Cookie.Name = "__Host-MedRef-BFF";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SameSite = SameSiteMode.Strict;
+        // None is required for credentialed cross-origin requests from the Netlify-hosted WASM app.
+        options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Events.OnRedirectToLogin = context =>
         {
@@ -62,6 +63,11 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddAuthorization();
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.Secure = CookieSecurePolicy.Always;
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -94,11 +100,15 @@ builder.Services.AddCors(options =>
 // =========================================================================
 var app = builder.Build();
 
-// CRITICAL PROXY FIX: Forwarded headers must execute before any routing or auth middleware
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+// CRITICAL PROXY FIX: Forwarded headers must execute before any routing or auth middleware.
+// Render's reverse proxy is not in KnownProxies by default, so clear the lists to trust it.
+var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+};
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 if (app.Environment.IsDevelopment())
 {
@@ -107,6 +117,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseCookiePolicy();
 app.UseCors("AllowNetlify");
 
 // CRITICAL PIPELINE ORDER: Authenticate identity BEFORE executing endpoints
