@@ -53,14 +53,12 @@
 @code {
     private void TriggerGoogleLogin()
     {
-        // The browser automatically translates this to:
-        // Localhost: http://localhost:5035/api/auth/login
-        // Production: https://medreftool.netlify.app/api/auth/login
-        Navigation.NavigateTo("api/auth/login", forceLoad: true);
+        // Adding the leading '/' ensures it targets medreftool.netlify.app/api/auth/login
+        Navigation.NavigateTo("/api/auth/login", forceLoad: true);
     }
 
     private void TriggerLogout()
     {
-        Navigation.NavigateTo("api/auth/logout", forceLoad: true);
+        Navigation.NavigateTo("/api/auth/logout", forceLoad: true);
     }
 }
