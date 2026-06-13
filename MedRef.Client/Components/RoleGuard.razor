@@ -1,0 +1,29 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthState
+@inject NavigationManager Nav
+
+<AuthorizeView>
+    <Authorized>
+        @{
+            var role = context.User.FindFirst("Role")?.Value;
+
+            Console.WriteLine($"Current user role is: {role}");
+        }
+        @if (role == "Unassigned")
+        {
+            <MedRef.Client.Pages.RoleSelection />
+        }
+        else
+        {
+            @ChildContent
+        }
+    </Authorized>
+    <NotAuthorized>
+        @NotAuthorizedContent
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? NotAuthorizedContent { get; set; }
+}

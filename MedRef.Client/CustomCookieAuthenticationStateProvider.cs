@@ -3,64 +3,71 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace MedRef.Client; // Make sure this matches your project namespace
-
-public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvider
+namespace MedRef.Client
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    public class CustomCookieAuthenticationStateProvider : AuthenticationStateProvider
     {
-        PropertyNameCaseInsensitive = true
-    };
-
-    private readonly HttpClient _httpClient;
-    private readonly AuthenticationState _anonymousSession = new(new ClaimsPrincipal(new ClaimsIdentity()));
-
-    public CustomCookieAuthenticationStateProvider(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-    {
-        try
+        private static readonly JsonSerializerOptions JsonOptions = new()
         {
-            var response = await _httpClient.GetFromJsonAsync<UserSessionResult>("api/auth/user", JsonOptions);
+            PropertyNameCaseInsensitive = true
+        };
 
-            if (response == null || !response.IsAuthenticated)
+        private readonly HttpClient _httpClient;
+        private readonly AuthenticationState _anonymousSession = new(new ClaimsPrincipal(new ClaimsIdentity()));
+
+        public CustomCookieAuthenticationStateProvider(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            try
             {
+                // Add a cache-busting query parameter to ensure we always get fresh data from the server
+                var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+                var url = $"api/auth/user?_={timestamp}";
+
+                var response = await _httpClient.GetFromJsonAsync<UserSessionResult>(url, JsonOptions);
+
+                if (response == null || !response.IsAuthenticated)
+                {
+                    return _anonymousSession;
+                }
+
+                var claims = response.Claims?
+                    .Select(c => new Claim(c.Type, c.Value))
+                    .ToList() ?? new List<Claim>();
+
+                var identity = new ClaimsIdentity(claims, "CookieAuth");
+                var user = new ClaimsPrincipal(identity);
+
+                return new AuthenticationState(user);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception so you can see if the API call is failing
+                Console.WriteLine($"Auth State Error: {ex.Message}");
                 return _anonymousSession;
             }
-
-            var claims = response.Claims?
-                .Select(c => new Claim(c.Type, c.Value))
-                .ToList() ?? [];
-
-            var identity = new ClaimsIdentity(claims, authenticationType: "CookieAuth");
-            return new AuthenticationState(new ClaimsPrincipal(identity));
         }
-        catch
+
+        public void NotifyUserAuthenticationChanged()
         {
-            return _anonymousSession;
+            // Trigger the re-fetch
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
     }
 
-    // =========================================================================
-    // ADD THIS MISSING METHOD HERE TO FIX THE COMPILER ERROR
-    // =========================================================================
-    public void VerifyUserSessionExplicitly()
+    public class UserSessionResult
     {
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        public bool IsAuthenticated { get; set; }
+        public List<ClaimData>? Claims { get; set; }
     }
-}
 
-public class UserSessionResult
-{
-    public bool IsAuthenticated { get; set; }
-    public List<ClaimData>? Claims { get; set; }
-}
-
-public class ClaimData
-{
-    public string Type { get; set; } = string.Empty;
-    public string Value { get; set; } = string.Empty;
+    public class ClaimData
+    {
+        public string Type { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
 }

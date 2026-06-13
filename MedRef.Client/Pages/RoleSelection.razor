@@ -1,0 +1,46 @@
+@page "/role-selection"
+@using Microsoft.AspNetCore.Components.Authorization
+@using MedRef.Client
+@inject AuthenticationStateProvider AuthState
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<div class="role-selection-container" style="text-align: center; margin-top: 50px;">
+    <h2>Welcome to MedRef!</h2>
+    <p>Please select your role to continue:</p>
+
+    <div class="role-buttons" style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+        <button class="btn btn-primary" @onclick='() => SaveRole("Nurse")'>
+            I am a Nurse
+        </button>
+        <button class="btn btn-secondary" @onclick='() => SaveRole("Patient")'>
+            I am a Patient
+        </button>
+    </div>
+</div>
+
+@code {
+    private async Task SaveRole(string role)
+    {
+        // Explicitly create an object that matches the backend class structure
+        var updateRequest = new { Role = role };
+
+        // Ensure the URL matches EXACTLY what is in AuthController (api/auth/update-role)
+        var response = await Http.PutAsJsonAsync("api/auth/update-role", updateRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            if (AuthState is CustomCookieAuthenticationStateProvider customProvider)
+            {
+                customProvider.NotifyUserAuthenticationChanged();
+            }
+            Nav.NavigateTo("/", forceLoad: true);
+        }
+        else
+        {
+            // The 400 error is often caused by the backend failing validation
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {response.StatusCode} - {errorContent}");
+        }
+    }
+}

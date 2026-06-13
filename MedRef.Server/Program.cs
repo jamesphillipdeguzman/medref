@@ -96,6 +96,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+// Make the Users collection available for injection in controllers (like UserController)
+builder.Services.AddSingleton<IMongoCollection<User>>(sp =>
+{
+    var database = sp.GetRequiredService<IMongoDatabase>();
+    return database.GetCollection<User>("Users"); // Make sure this matches your DB collection name
+});
+
 // =========================================================================
 // 2. BUILD THE APP (CALL THIS EXACTLY ONCE HERE)
 // =========================================================================
