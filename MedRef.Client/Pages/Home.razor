@@ -51,17 +51,15 @@
     </AuthorizeView>
 
 @code {
-    // We removed OnInitializedAsync completely to break the infinite notification re-render loop!
-
     private void TriggerGoogleLogin()
     {
-        // Route through Netlify's backend proxy endpoint directly to preserve cookies
-        Navigation.NavigateTo("https://medreftool.netlify.app/api/auth/login", forceLoad: true);
+        // Direct browser routing to the backend container to prevent Netlify loop timeouts
+        Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/login", forceLoad: true);
     }
 
     private void TriggerLogout()
     {
-        // Route through Netlify's backend proxy endpoint directly to clear cookies
-        Navigation.NavigateTo("https://medreftool.netlify.app/api/auth/logout", forceLoad: true);
+        // Direct browser routing to the backend container to clear cookies reliably
+        Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/logout", forceLoad: true);
     }
 }
