@@ -1,13 +1,34 @@
 @page "/authentication/{action}"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
-@using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-
-<RemoteAuthenticatorView Action="@Action" />
+<div class="d-flex justify-content-center align-items-center my-5">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="text-white">Processing security handshake, please wait...</p>
+    </div>
+</div>
 
 @code {
+    [Parameter] public string? Action { get; set; }
 
-    [Parameter]
-    public string? Action { get; set; }
-
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Action?.ToLower() == "login")
+        {
+            // Direct routing to the Render container backend to safely pass cookies
+            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/login", forceLoad: true);
+        }
+        else if (Action?.ToLower() == "logout")
+        {
+            // Direct routing to clear out backend session state cleanly
+            Navigation.NavigateTo("https://medref-backend-565n.onrender.com/api/auth/logout", forceLoad: true);
+        }
+        else
+        {
+            // When returning from Google, drop cleanly onto the home layout
+            // where AuthorizeView naturally checks our login cookies.
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+    }
 }
