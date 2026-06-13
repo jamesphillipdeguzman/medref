@@ -1,13 +1,36 @@
 @page "/authentication/{action}"
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
-@using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-
-<RemoteAuthenticatorView Action="@Action" />
+<div class="d-flex justify-content-center align-items-center my-5">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="text-muted">Processing security handshake, please wait...</p>
+    </div>
+</div>
 
 @code {
+    [Parameter] public string? Action { get; set; }
 
-    [Parameter]
-    public string? Action { get; set; }
-
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Action?.ToLower() == "login")
+        {
+            // Force the browser to hit your Netlify proxy -> Render login controller endpoint
+            Navigation.NavigateTo("/api/auth/login", forceLoad: true);
+        }
+        else if (Action?.ToLower() == "logout")
+        {
+            Navigation.NavigateTo("/api/auth/logout", forceLoad: true);
+        }
+        else
+        {
+            // If it's just an unknown state callback, force-refresh identity status and go home
+            if (AuthStateProvider is CustomCookieAuthenticationStateProvider customProvider)
+            {
+                customProvider.VerifyUserSessionExplicitly();
+            }
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+    }
 }
