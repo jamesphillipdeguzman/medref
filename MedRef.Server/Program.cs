@@ -2,6 +2,8 @@ using MedRef.Server.Services;
 using MongoDB.Driver;
 using MedRef.Server.Configurations;
 using MedRef.Shared.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,29 +11,24 @@ var builder = WebApplication.CreateBuilder(args);
 // MONGODB CONFIGURATION & SERVICE PATTERNS
 // =========================================================================
 
-// 1. Bind the configuration keys
 var mongoDbSettings = builder.Configuration
     .GetSection("MongoDbSettings")
     .Get<MongoDbSettings>()
     ?? throw new InvalidOperationException("MongoDB settings are missing from configuration.");
 
-// 2. Register IMongoClient as a Singleton
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     return new MongoClient(mongoDbSettings.ConnectionString);
 });
 
-// 3. Register IMongoDatabase as a Singleton
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(mongoDbSettings.DatabaseName);
 });
 
-// 4. Register your custom services that depend on IMongoDatabase
 builder.Services.AddScoped<SavedCodeService>();
 
-// 5. Register Jeremy's collection dependency so his endpoints can resolve it
 builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
@@ -39,10 +36,39 @@ builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
 });
 
 // =========================================================================
+// GOOGLE OAUTH 2.0 & BFF COOKIE CONFIGURATION
+// =========================================================================
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.Cookie.Name = "__Host-MedRef-BFF";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        };
+    })
+    .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]
+            ?? throw new InvalidOperationException("Google ClientId is missing.");
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]
+            ?? throw new InvalidOperationException("Google ClientSecret is missing.");
+    });
+
+builder.Services.AddAuthorization();
+
+// =========================================================================
 
 builder.Services.AddControllers();
-
-// Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -54,7 +80,7 @@ builder.Services.AddHttpClient("MedlinePlus", client =>
     client.Timeout = TimeSpan.FromSeconds(10);
 });
 
-// CORS
+// CORS configuration to allow requests from Netlify frontend and local development
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNetlify", policy =>
@@ -65,7 +91,8 @@ builder.Services.AddCors(options =>
                 "http://localhost:5265"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -79,6 +106,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseCors("AllowNetlify");
+
+// CRITICAL PIPELINE ORDER: Authenticate identity BEFORE executing endpoints
+app.UseAuthentication();
+app.UseAuthorization();
 
 // =========================================================================
 // API ENDPOINTS
@@ -140,7 +171,7 @@ async (string id, IMongoCollection<SavedRecord> collection) =>
     return Results.Ok();
 });
 
-// Your Polished Saved Codes Endpoints
+// James' Polished Saved Codes Endpoints
 app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
 {
     var codes = await savedCodeService.GetSavedCodesAsync();
@@ -157,5 +188,8 @@ app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService sa
     var createdCode = await savedCodeService.AddSavedCodeAsync(newCode);
     return Results.Created($"/api/savedcodes/{createdCode.Id}", createdCode);
 });
+
+// CRITICAL FIX LOCATION: Must be explicitly declared right before app.Run()
+app.MapControllers();
 
 app.Run();
