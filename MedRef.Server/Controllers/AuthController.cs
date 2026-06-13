@@ -60,15 +60,20 @@ public class AuthController : ControllerBase
     /// </summary>
     private string GetFrontendOrigin()
     {
-        // 1. Check if the browser passed a referrer or origin header
+        // Use only the origin (scheme + host), never the full referrer path.
+        // Returning /authentication/login caused an OAuth redirect loop.
         string referrer = Request.Headers["Referer"].ToString();
-        if (!string.IsNullOrEmpty(referrer))
+        if (!string.IsNullOrEmpty(referrer) && Uri.TryCreate(referrer, UriKind.Absolute, out var referrerUri))
         {
-            // Return root origin directory (trailing slash required for Blazor navigation)
-            return referrer.EndsWith("/") ? referrer : $"{referrer}/";
+            return $"{referrerUri.Scheme}://{referrerUri.Authority}/";
         }
 
-        // 2. Fallback to explicit env mapping if header isn't present
+        string origin = Request.Headers["Origin"].ToString();
+        if (!string.IsNullOrEmpty(origin) && Uri.TryCreate(origin, UriKind.Absolute, out var originUri))
+        {
+            return $"{originUri.Scheme}://{originUri.Authority}/";
+        }
+
         bool isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
         return isDevelopment
             ? "http://localhost:5265/"
