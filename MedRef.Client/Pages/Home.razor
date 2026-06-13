@@ -53,13 +53,14 @@
 @code {
     private void TriggerGoogleLogin()
     {
-        // Force a full browser navigation reload so the server handles the OAuth handshake loop
-        Navigation.NavigateTo("http://localhost:5035/api/auth/login", forceLoad: true);
+        // The browser automatically translates this to:
+        // Localhost: http://localhost:5035/api/auth/login
+        // Production: https://medreftool.netlify.app/api/auth/login
+        Navigation.NavigateTo("api/auth/login", forceLoad: true);
     }
 
     private void TriggerLogout()
     {
-        // Sends a request to the backend AuthController to drop the cookie session
-        Navigation.NavigateTo("http://localhost:5035/api/auth/logout", forceLoad: true);
+        Navigation.NavigateTo("api/auth/logout", forceLoad: true);
     }
 }
