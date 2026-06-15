@@ -10,9 +10,23 @@ namespace MedRef.Server.Data
 
         public MongoDbContext(IConfiguration configuration)
         {
-            var client = new MongoClient(configuration.GetConnectionString("MongoDb"));
+            // We use the direct configuration key path to match your Render Environment Variables 
+            // defined as "MongoDbSettings__ConnectionString"
+            var connectionString = configuration["MongoDbSettings:ConnectionString"];
+
+            // Diagnostic check: If this is null, it means the app isn't reading the 
+            // Render environment variables correctly.
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("ConnectionString is missing! Check your Render environment variables.");
+            }
+
+            var client = new MongoClient(connectionString);
+
             // Changed from dr_meet_db to your team project database name
-            _database = client.GetDatabase("MedRefDb");
+            // We can also pull the DB name from config, or default to "MedRefDb"
+            var databaseName = configuration["MongoDbSettings:DatabaseName"] ?? "MedRefDb";
+            _database = client.GetDatabase(databaseName);
         }
 
         public IMongoCollection<User> Users => _database.GetCollection<User>("users");
