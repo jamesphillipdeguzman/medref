@@ -4,10 +4,17 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            @* This is the "Bouncer" that checks for a role *@
+            @* This remains your "Bouncer" that checks for a profile role status *@
             <RoleGuard>
                 <ChildContent>
-                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+                    <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                        @* FIX: When a Nurse logs out while sitting on a secure page,
+                           this block catches the dropped session and redirects them home
+                        *@
+                        <NotAuthorized>
+                            <RedirectToLogin />
+                        </NotAuthorized>
+                    </AuthorizeRouteView>
                     <FocusOnNavigate RouteData="@routeData" Selector="h1" />
                 </ChildContent>
                 <NotAuthorizedContent>

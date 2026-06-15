@@ -1,7 +1,10 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
 @inject IWebAssemblyHostEnvironment HostEnvironment
+@inject AuthenticationStateProvider AuthStateProvider
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using System.Security.Claims
 
 <PageTitle>Home</PageTitle>
 
@@ -10,22 +13,32 @@
 <p>
     Welcome to MedRef, your go-to medical reference tool for ICD codes. Whether you're a healthcare professional,
     student, or simply interested in learning more about medical coding, MedRef provides a comprehensive and
-    user-friendly
-    platform to explore and understand ICD codes.
+    user-friendly platform to explore and understand ICD codes.
 </p>
 
 <hr class="my-4" style="border-color: rgba(255,255,255,0.1);" />
 
 <AuthorizeView>
     <Authorized>
-        <div class="alert alert-success d-inline-block" role="alert"
-             style="background-color: rgba(25, 135, 84, 0.2); color: #75b798; border: 1px solid #2b593f;">
-            <p style="margin-bottom: 0;">Welcome back, <strong>@context.User.Identity?.Name</strong>!</p>
+        <div class="d-flex align-items-center gap-3 align-middle">
+            <div class="alert alert-success d-inline-block m-0" role="alert"
+                 style="background-color: rgba(25, 135, 84, 0.2); color: #75b798; border: 1px solid #2b593f; padding: 8px 16px;">
+                <p style="margin-bottom: 0;">Welcome back, <strong>@context.User.Identity?.Name</strong>!</p>
+            </div>
+
+            @* Intuitive Logout right beside the welcome message banner *@
+            <button class="btn btn-outline-danger" @onclick="TriggerLogout" type="button" style="padding: 6px 12px;">
+                Log Out
+            </button>
         </div>
-        <div class="mt-3">
-            <a href="/saved-records" class="btn btn-primary me-2">Go to Saved Records</a>
-            <button @onclick="TriggerLogout" class="btn btn-outline-danger">Log Out</button>
-        </div>
+
+        <AuthorizeView Roles="Nurse" Context="nurseContext">
+            <Authorized>
+                <div class="mt-3">
+                    <a href="/saved-records" class="btn btn-primary me-2">Go to Saved Records</a>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </Authorized>
 
     <NotAuthorized>
@@ -52,6 +65,23 @@
     </AuthorizeView>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var roleClaim = user.FindFirst(c => c.Type == "Role")?.Value
+                            ?? user.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (roleClaim == "Unassigned" || string.IsNullOrEmpty(roleClaim))
+            {
+                Navigation.NavigateTo("/role-selection");
+            }
+        }
+    }
+
     private void TriggerGoogleLogin()
     {
         Navigation.NavigateTo(AuthUrl("login"), forceLoad: true);
@@ -59,6 +89,7 @@
 
     private void TriggerLogout()
     {
+        // FORCE LOAD ensures cookies are thoroughly purged and forces Blazor to restart on the login screen
         Navigation.NavigateTo(AuthUrl("logout"), forceLoad: true);
     }
 

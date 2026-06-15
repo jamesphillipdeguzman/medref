@@ -1,10 +1,9 @@
 @inject NavigationManager Navigation
 
 @code {
-
     protected override void OnInitialized()
     {
-        Navigation.NavigateTo("authentication/login");
+        // Redirects unauthorized or logged-out users back to the clean home page card layout!
+        Navigation.NavigateTo("/", forceLoad: false);
     }
-
 }

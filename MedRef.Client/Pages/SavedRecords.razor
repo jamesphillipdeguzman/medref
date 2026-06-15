@@ -6,6 +6,10 @@
 @using MedRef.Shared.Models
 @using System.Net.Http.Json
 
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@using System.Security.Claims
+
 <PageTitle>Saved Records</PageTitle>
 
 <h1>Saved Records</h1>
@@ -110,19 +114,33 @@
 
 
 @code {
-
 	private string errorMessage = "";
-
 	private List<SavedRecord> records = new();
-
 	private SavedRecord? selectedRecord;
-
 	private bool showEditModal = false;
 
 	protected override async Task OnInitializedAsync()
 	{
+		// 1. Fetch the user's login state right when the page builds
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+
+		// 2. Parse out their matching functional roles
+		var roleClaim = user.FindFirst(c => c.Type == "Role")?.Value
+						?? user.FindFirst(ClaimTypes.Role)?.Value;
+
+		// 3. HARD INTERCEPT: If they logged out or aren't a Nurse, kick them straight to root home!
+		if (user.Identity == null || !user.Identity.IsAuthenticated || roleClaim != "Nurse")
+		{
+			Navigation.NavigateTo("/", forceLoad: false);
+			return;
+		}
+
+		// 4. FIX: If they passed the guard, you MUST fire the database fetcher here!
 		await LoadRecordsAsync();
 	}
+
+	
 
 	private async Task LoadRecordsAsync()
 	{
@@ -188,4 +206,6 @@
 		{
 		}
 	}
+
+	
 }
