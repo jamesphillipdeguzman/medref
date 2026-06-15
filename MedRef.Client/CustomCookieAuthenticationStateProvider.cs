@@ -35,11 +35,37 @@ namespace MedRef.Client
                     return _anonymousSession;
                 }
 
-                var claims = response.Claims?
-                    .Select(c => new Claim(c.Type, c.Value))
-                    .ToList() ?? new List<Claim>();
+                var claims = new List<Claim>();
 
-                var identity = new ClaimsIdentity(claims, "CookieAuth");
+                if (response.Claims != null)
+                {
+                    foreach (var c in response.Claims)
+                    {
+                        // Map the base claim coming from the API
+                        claims.Add(new Claim(c.Type, c.Value));
+
+                        // FIX: If the claim type matches "Role" or the .NET long-form role claim URI,
+                        // duplicate it to ensure both standard literal string matching and native .NET IsInRole() function checks pass.
+                        if (c.Type.Equals("Role", StringComparison.OrdinalIgnoreCase) ||
+                            c.Type.Equals(ClaimTypes.Role, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Add literal string fallback "Role"
+                            if (!claims.Any(existing => existing.Type == "Role" && existing.Value == c.Value))
+                            {
+                                claims.Add(new Claim("Role", c.Value));
+                            }
+
+                            // Add official .NET long-form type fallback "http://schemas.microsoft.com/..."
+                            if (!claims.Any(existing => existing.Type == ClaimTypes.Role && existing.Value == c.Value))
+                            {
+                                claims.Add(new Claim(ClaimTypes.Role, c.Value));
+                            }
+                        }
+                    }
+                }
+
+                // Explicitly provide the claim mapping structure type so IsInRole() checks evaluate correctly
+                var identity = new ClaimsIdentity(claims, "CookieAuth", ClaimTypes.Name, ClaimTypes.Role);
                 var user = new ClaimsPrincipal(identity);
 
                 return new AuthenticationState(user);

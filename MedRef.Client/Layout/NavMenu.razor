@@ -1,35 +1,34 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 
 <nav class="sidebar-nav">
-
     <h2 class="sidebar-title">
         Pages
     </h2>
 
     <NavLink class="page-link" href="icd10-search">
-
         ICD-10 Search
-
     </NavLink>
 
+    @* Use a custom client-side context check to catch both standard and literal claim strings *@
     <AuthorizeView>
-
         <Authorized>
+            @{
+                var isNurse = context.User.IsInRole("Nurse") ||
+                              context.User.FindFirst("Role")?.Value == "Nurse" ||
+                              context.User.FindFirst(ClaimTypes.Role)?.Value == "Nurse";
+            }
 
-            <NavLink class="page-link" href="saved-records">
-
-                Saved Records
-
-            </NavLink>
-
+            @if (isNurse)
+            {
+                <NavLink class="page-link" href="saved-records">
+                    Saved Records
+                </NavLink>
+            }
         </Authorized>
-
     </AuthorizeView>
 
     <NavLink class="page-link" href="help">
-
         Help
-
     </NavLink>
-
 </nav>

@@ -1,21 +1,33 @@
-# .NET / Visual Studio Build artifacts
-**/bin/
-**/obj/
+# Exclude Git and Docker metadata
+.git
+.gitignore
+.dockerignore
+
+# Exclude local build artifacts
 bin/
 obj/
-*.user
-*.suo
+**/bin/
+**/obj/
 
-# IDE & Editor settings
+# Exclude client-side dependencies and package managers
+node_modules/
+.npm/
+*.log
+
+# Exclude web / client-side compilation outputs
+dist/
+wwwroot/dist/
+
+# Exclude IDE/Editor files
 .vs/
 .vscode/
 .idea/
 
-# OS-specific files
+# Exclude local environment files
+*.env
+*.saved-records
+appsettings.Local.json
+
+# Exclude other common junk
 .DS_Store
 Thumbs.db
-
-# Secrets (NEVER COMMIT)
-*.env
-*.secrets.json
-appsettings.Local.json

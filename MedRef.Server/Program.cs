@@ -5,8 +5,14 @@ using MedRef.Shared.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.HttpOverrides;
+using MedRef.Server.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register MongoDB contexts and data abstraction layers
+builder.Services.AddSingleton<MongoDbContext>();
+builder.Services.AddScoped<ProfileRepository>();
 
 // =========================================================================
 // 1. REGISTER ALL SERVICES & CONFIGURATIONS (MUST BE BEFORE builder.Build)

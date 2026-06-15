@@ -1,79 +1,47 @@
-@inject NavigationManager Navigation
-@inject IWebAssemblyHostEnvironment HostEnvironment
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@using System.Security.Claims
 
-<CascadingAuthenticationState>
+<header class="app-header">
+    @* --- Left Side: Logo and Branding --- *@
+    <div class="brand-block">
+        <NavLink class="d-flex align-items-center text-decoration-none" href="" Match="NavLinkMatch.All">
+            <div class="logo-mark" aria-hidden="true">
+                <span class="logo-cross-h"></span>
+                <span class="logo-cross-v"></span>
+            </div>
+            <span class="app-name">MedRef</span>
+        </NavLink>
+    </div>
+
+    @* --- Right Side: Dynamic Mode Status Displays --- *@
     <AuthorizeView>
         <Authorized>
-            <header class="app-header">
-                <div class="brand-block">
-                    <NavLink class="d-flex align-items-center text-decoration-none" href="" Match="NavLinkMatch.All">
-                        <div class="logo-mark" aria-hidden="true">
-                            <span class="logo-cross-h"></span>
-                            <span class="logo-cross-v"></span>
-                        </div>
-                        <span class="app-name">MedRef</span>
-                    </NavLink>
-                </div>
+            @{
+                var isNurse = context.User.IsInRole("Nurse") ||
+                              context.User.FindFirst("Role")?.Value == "Nurse" ||
+                              context.User.FindFirst(ClaimTypes.Role)?.Value == "Nurse";
+            }
 
-                <div class="mode-toggle" role="group" aria-label="Mode switch">
-                    <span class="mode-label active">
-                        Nurse Mode
-                    </span>
+            <div class="mode-toggle" role="group" aria-label="Mode status">
+                <span class="mode-label @(isNurse ? "active" : "")">
+                    Nurse Mode
+                </span>
 
-                    <button class="switch-button on" @onclick="Logout" type="button">
-                        <span class="switch-thumb"></span>
-                    </button>
+                <button class="switch-button @(isNurse ? "on" : "off")" style="cursor: not-allowed;" type="button"
+                        disabled>
+                    <span class="switch-thumb"></span>
+                </button>
 
-                    <span class="mode-label">
-                        Patient Mode
-                    </span>
-                </div>
-            </header>
+                <span class="mode-label @(!isNurse ? "active" : "")">
+                    Patient Mode
+                </span>
+            </div>
         </Authorized>
 
         <NotAuthorized>
-            <header class="app-header">
-                <NavLink class="brand-block" href="" Match="NavLinkMatch.All"
-                         style="text-decoration: none; cursor: pointer; color: inherit;">
-                    <div class="logo-mark" aria-hidden="true">
-                        <span class="logo-cross-h"></span>
-                        <span class="logo-cross-v"></span>
-                    </div>
-                    <span class="app-name">MedRef</span>
-                </NavLink>
-
-                <div class="mode-toggle" role="group" aria-label="Mode switch">
-                    <span class="mode-label">
-                        Nurse Mode
-                    </span>
-
-                    <button class="switch-button off" @onclick="Login" type="button">
-                        <span class="switch-thumb"></span>
-                    </button>
-
-                    <span class="mode-label active">
-                        Patient Mode
-                    </span>
-                </div>
-            </header>
+            <div class="mode-toggle" role="group" aria-label="Mode switch">
+                <span class="mode-label">Public Mode</span>
+            </div>
         </NotAuthorized>
     </AuthorizeView>
-</CascadingAuthenticationState>
-
-@code {
-    private void Login()
-    {
-        Navigation.NavigateTo(AuthUrl("login"), forceLoad: true);
-    }
-
-    private void Logout()
-    {
-        Navigation.NavigateTo(AuthUrl("logout"), forceLoad: true);
-    }
-
-    private string AuthUrl(string action) => HostEnvironment.IsDevelopment()
-        ? $"http://localhost:5035/api/auth/{action}"
-        : $"/api/auth/{action}";
-}
+</header>
