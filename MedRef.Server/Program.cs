@@ -33,7 +33,7 @@ builder.Services.AddScoped<SavedCodeService>();
 builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<SavedRecord>("SavedRecords");
+    return database.GetCollection<SavedRecord>("saved-records");
 });
 
 builder.Services.AddAuthentication(options =>
@@ -168,7 +168,7 @@ async (string code, IMedlineService medlineService, CancellationToken ct) =>
 });
 
 // Jeremy's Saved Records Endpoints
-app.MapPost("/api/savedrecords",
+app.MapPost("/api/saved-records",
 async (SavedRecord record, IMongoCollection<SavedRecord> collection) =>
 {
     if (string.IsNullOrWhiteSpace(record.Id))
@@ -180,7 +180,7 @@ async (SavedRecord record, IMongoCollection<SavedRecord> collection) =>
     return Results.Ok(record);
 });
 
-app.MapGet("/api/savedrecords",
+app.MapGet("/api/saved-records",
 async (IMongoCollection<SavedRecord> collection) =>
 {
     var records = await collection
@@ -190,7 +190,7 @@ async (IMongoCollection<SavedRecord> collection) =>
     return Results.Ok(records);
 });
 
-app.MapPut("/api/savedrecords/{id}",
+app.MapPut("/api/saved-records/{id}",
 async (string id, SavedRecord updatedRecord, IMongoCollection<SavedRecord> collection) =>
 {
     updatedRecord.Id = id;
@@ -200,7 +200,7 @@ async (string id, SavedRecord updatedRecord, IMongoCollection<SavedRecord> colle
     return Results.Ok(updatedRecord);
 });
 
-app.MapDelete("/api/savedrecords/{id}",
+app.MapDelete("/api/saved-records/{id}",
 async (string id, IMongoCollection<SavedRecord> collection) =>
 {
     var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
