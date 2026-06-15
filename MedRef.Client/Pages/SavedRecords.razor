@@ -15,22 +15,23 @@
 
 <div class="records-table-wrapper">
 	<div class="records-search-bar">
-		<input type="search" class="saved-search-input" placeholder="Search Saved List" aria-label="Search saved list" />
+		<input type="search" class="saved-search-input" placeholder="Search Saved List"
+			   aria-label="Search saved list" />
 	</div>
 
 	<div class="records-table-scroll">
 		<table class="records-table table table-bordered">
 			<thead>
 				<tr style="background-color: #1a5276; color: #ffffff;">
-				<th>CODE</th>
-				<th>DISEASE NAME</th>
-				<th>CUSTOM NOTES</th>
-				<th>MEDLINE URL</th>
-				<th>ACTIONS</th>
+					<th>CODE</th>
+					<th>DISEASE NAME</th>
+					<th>CUSTOM NOTES</th>
+					<th>MEDLINE URL</th>
+					<th>ACTIONS</th>
 				</tr>
 			</thead>
 
-				<tbody>
+			<tbody>
 
 				@foreach (var record in records)
 				{
@@ -43,8 +44,7 @@
 						<td>@record.Notes</td>
 
 						<td>
-							<a href="@record.MedlineUrl"
-							target="_blank">
+							<a href="@record.MedlineUrl" target="_blank">
 								@record.MedlineUrl
 							</a>
 						</td>
@@ -52,13 +52,10 @@
 						<td>
 							<div class="actions-cell">
 
-								<button class="action-button"
-										@onclick="() => OpenEditModal(record)">
+								<button class="action-button" @onclick="() => OpenEditModal(record)">
 									<span class="action-icon icon-pencil"></span>
 								</button>
-								<button
-									class="action-button danger"
-									@onclick="() => DeleteRecordAsync(record.Id)">
+								<button class="action-button danger" @onclick="() => DeleteRecordAsync(record.Id)">
 									<span class="action-icon icon-trash"></span>
 								</button>
 
@@ -68,8 +65,8 @@
 					</tr>
 				}
 
-				</tbody>
-		
+			</tbody>
+
 		</table>
 	</div>
 </div>
@@ -81,40 +78,34 @@
 
 @if (showEditModal && selectedRecord is not null)
 {
-    <div class="modal-overlay">
+	<div class="modal-overlay">
 
-        <div class="modal-container">
+		<div class="modal-container">
 
-            <h3>Edit Notes</h3>
+			<h3>Edit Notes</h3>
 
-            <p>
-                <strong>@selectedRecord.Code</strong>
-            </p>
+			<p>
+				<strong>@selectedRecord.Code</strong>
+			</p>
 
-            <textarea
-                class="notes-textarea"
-                @bind="selectedRecord.Notes">
+			<textarea class="notes-textarea" @bind="selectedRecord.Notes">
             </textarea>
 
-            <div class="modal-buttons">
+			<div class="modal-buttons">
 
-                <button
-                    class="save-button"
-                    @onclick="SaveRecordAsync">
-                    Save
-                </button>
+				<button class="save-button" @onclick="SaveRecordAsync">
+					Save
+				</button>
 
-                <button
-                    class="cancel-button"
-                    @onclick="CloseEditModal">
-                    Cancel
-                </button>
+				<button class="cancel-button" @onclick="CloseEditModal">
+					Cancel
+				</button>
 
-            </div>
+			</div>
 
-        </div>
+		</div>
 
-    </div>
+	</div>
 }
 
 
@@ -122,16 +113,16 @@
 
 	private string errorMessage = "";
 
-    private List<SavedRecord> records = new();
+	private List<SavedRecord> records = new();
 
-    private SavedRecord? selectedRecord;
+	private SavedRecord? selectedRecord;
 
-    private bool showEditModal = false;
+	private bool showEditModal = false;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadRecordsAsync();
-    }
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadRecordsAsync();
+	}
 
 	private async Task LoadRecordsAsync()
 	{
@@ -139,7 +130,7 @@
 		{
 			records =
 				await Http.GetFromJsonAsync<List<SavedRecord>>(
-					"api/savedrecords")
+					"api/saved-records")
 				?? new();
 
 			errorMessage = $"Loaded {records.Count} records";
@@ -151,17 +142,17 @@
 		}
 	}
 
-    private void OpenEditModal(SavedRecord record)
-    {
-        selectedRecord = record;
-        showEditModal = true;
-    }
+	private void OpenEditModal(SavedRecord record)
+	{
+		selectedRecord = record;
+		showEditModal = true;
+	}
 
-    private void CloseEditModal()
-    {
-        showEditModal = false;
-        selectedRecord = null;
-    }
+	private void CloseEditModal()
+	{
+		showEditModal = false;
+		selectedRecord = null;
+	}
 
 	private async Task SaveRecordAsync()
 	{
@@ -171,7 +162,7 @@
 		try
 		{
 			await Http.PutAsJsonAsync(
-				$"api/savedrecords/{selectedRecord.Id}",
+				$"api/saved-records/{selectedRecord.Id}",
 				selectedRecord);
 
 			await LoadRecordsAsync();
@@ -185,16 +176,16 @@
 	}
 
 	private async Task DeleteRecordAsync(string id)
-{
-    try
-    {
-        await Http.DeleteAsync(
-            $"api/savedrecords/{id}");
+	{
+		try
+		{
+			await Http.DeleteAsync(
+				$"api/saved-records/{id}");
 
-        await LoadRecordsAsync();
-    }
-    catch
-    {
-    }
-}
+			await LoadRecordsAsync();
+		}
+		catch
+		{
+		}
+	}
 }
