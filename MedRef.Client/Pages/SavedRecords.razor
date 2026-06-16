@@ -146,17 +146,24 @@
 	{
 		try
 		{
-			records =
-				await Http.GetFromJsonAsync<List<SavedRecord>>(
-					"api/saved-records")
-				?? new();
+			// Change: Use the base URL for the controller route
+			var response = await Http.GetAsync("api/saved-records");
 
-			errorMessage = $"Loaded {records.Count} records";
+			if (response.IsSuccessStatusCode)
+			{
+				var data = await response.Content.ReadFromJsonAsync<List<SavedRecord>>();
+				records = data ?? new(); // If null, assign an empty list
+				errorMessage = records.Count == 0 ? "No records found." : "";
+			}
+			else
+			{
+				errorMessage = $"Error loading records: {response.StatusCode}";
+			}
 		}
 		catch (Exception ex)
 		{
-			errorMessage = ex.ToString();
-			records = new();
+			errorMessage = "Error connecting to server.";
+			Console.WriteLine(ex.ToString());
 		}
 	}
 

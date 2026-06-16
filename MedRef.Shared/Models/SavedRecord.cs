@@ -1,7 +1,10 @@
 namespace MedRef.Shared.Models;
 
+using MongoDB.Bson.Serialization.Attributes;
+
 public class SavedRecord
 {
+    [BsonId]
     public string Id { get; set; } = string.Empty;
 
     public string Code { get; set; } = string.Empty;

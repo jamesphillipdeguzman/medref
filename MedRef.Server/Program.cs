@@ -39,7 +39,7 @@ builder.Services.AddScoped<SavedCodeService>();
 builder.Services.AddScoped<IMongoCollection<SavedRecord>>(sp =>
 {
     var database = sp.GetRequiredService<IMongoDatabase>();
-    return database.GetCollection<SavedRecord>("saved-records");
+    return database.GetCollection<SavedRecord>("SavedRecords");
 });
 
 builder.Services.AddAuthentication(options =>
@@ -155,84 +155,8 @@ app.UseCors("AllowNetlify");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// =========================================================================
-// 3. API ENDPOINTS & ROUTING Map
-// =========================================================================
-
-// Medline Proxy
-app.MapGet("/api/medlineproxy",
-async (string code, IMedlineService medlineService, CancellationToken ct) =>
-{
-    if (string.IsNullOrWhiteSpace(code))
-        return Results.BadRequest("Code is required.");
-
-    var data = await medlineService.GetMedlineDataAsync(code, ct);
-
-    return data is not null
-        ? Results.Ok(data)
-        : Results.NotFound($"No Medline data found for {code}");
-});
-
-// Jeremy's Saved Records Endpoints
-app.MapPost("/api/saved-records",
-async (SavedRecord record, IMongoCollection<SavedRecord> collection) =>
-{
-    if (string.IsNullOrWhiteSpace(record.Id))
-    {
-        record.Id = Guid.NewGuid().ToString();
-    }
-
-    await collection.InsertOneAsync(record);
-    return Results.Ok(record);
-});
-
-app.MapGet("/api/saved-records",
-async (IMongoCollection<SavedRecord> collection) =>
-{
-    var records = await collection
-        .Find(_ => true)
-        .ToListAsync();
-
-    return Results.Ok(records);
-});
-
-app.MapPut("/api/saved-records/{id}",
-async (string id, SavedRecord updatedRecord, IMongoCollection<SavedRecord> collection) =>
-{
-    updatedRecord.Id = id;
-    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
-
-    await collection.ReplaceOneAsync(filter, updatedRecord);
-    return Results.Ok(updatedRecord);
-});
-
-app.MapDelete("/api/saved-records/{id}",
-async (string id, IMongoCollection<SavedRecord> collection) =>
-{
-    var filter = Builders<SavedRecord>.Filter.Eq(x => x.Id, id);
-
-    await collection.DeleteOneAsync(filter);
-    return Results.Ok();
-});
-
-// James' Polished Saved Codes Endpoints
-app.MapGet("/api/savedcodes", async (SavedCodeService savedCodeService) =>
-{
-    var codes = await savedCodeService.GetSavedCodesAsync();
-    return Results.Ok(codes);
-});
-
-app.MapPost("/api/savedcodes/add", async (SavedCode newCode, SavedCodeService savedCodeService) =>
-{
-    if (string.IsNullOrWhiteSpace(newCode.CodeValue) || string.IsNullOrWhiteSpace(newCode.DiseaseName))
-    {
-        return Results.BadRequest("Both CodeValue and DiseaseName are required.");
-    }
-
-    var createdCode = await savedCodeService.AddSavedCodeAsync(newCode);
-    return Results.Created($"/api/savedcodes/{createdCode.Id}", createdCode);
-});
 
 app.MapControllers();
+
 
 app.Run();

@@ -3,6 +3,9 @@
 @using MedRef.Shared.Models
 @using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+
+
 
 <PageTitle>ICD-10 Search</PageTitle>
 
@@ -72,6 +75,29 @@
                     <p>No links are available for this condition.</p>
                 }
             </div>
+
+            <div class="info-block">
+            <div class="action-container">
+                <AuthorizeView>
+                    <Authorized>
+                        <button class="favorites-button" type="button" @onclick="SaveToFavoritesAsync">
+                            SAVE TO FAVORITES
+                        </button>
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <p style="color: green; font-size: 0.8rem; margin-top: 0.5rem;">@successMessage</p>
+                        }
+                    </Authorized>
+                    <NotAuthorized>
+                        <p class="auth-hint">Ready to save this code?</p>
+                        <a href="/login" class="favorites-button">LOGIN TO SAVE</a>
+                    </NotAuthorized>
+                    <Authorizing>
+                        <p>Checking your session...</p>
+                    </Authorizing>
+                </AuthorizeView>
+            </div>
+        </div>
         }
         @* State 3: the API returned an error or an exception occurred *@
         else if (!string.IsNullOrEmpty(errorMessage))
@@ -90,51 +116,40 @@
             </div>
         }
     </section>
+    
     <AuthorizeView>
 
         <Authorized>
             <section class="result-right">
                 <h3 class="saved-codes-title">SAVED CODES</h3>
 
-                <div class="disease-card">
-                    <div class="card-top">
-                        <span class="action-icon icon-person" aria-hidden="true"></span>
-                        <span class="disease-code">A10.1</span>
-                    </div>
-                    <p class="disease-name">Disease Name: Hypertension</p>
-                    <div class="card-actions">
-                        <button class="action-button" type="button">
-                            <span class="action-icon icon-pencil" aria-hidden="true"></span>
-                            Edit Notes
-                        </button>
-                        <button class="action-button danger" type="button">
-                            <span class="action-icon icon-trash" aria-hidden="true"></span>
-                            Delete
-                        </button>
-                    </div>
-                </div>
-
-                <div class="disease-card">
-                    <div class="card-top">
-                        <span class="action-icon icon-person" aria-hidden="true"></span>
-                        <span class="disease-code">B22.4</span>
-                    </div>
-                    <p class="disease-name">Disease Name: Asthma</p>
-                    <div class="card-actions">
-                        <button class="action-button" type="button">
-                            <span class="action-icon icon-pencil" aria-hidden="true"></span>
-                            Edit Notes
-                        </button>
-                        <button class="action-button danger" type="button">
-                            <span class="action-icon icon-trash" aria-hidden="true"></span>
-                            Delete
-                        </button>
-                    </div>
-                </div>
-
-                <div class="favorites-row">
-                    <button class="favorites-button" type="button">SAVE TO FAVORITES</button>
-                </div>
+                @if (userSavedRecords.Any())
+                {
+                    @foreach (var record in userSavedRecords)
+                    {
+                        <div class="disease-card">
+                            <div class="card-top">
+                                <span class="action-icon icon-person" aria-hidden="true"></span>
+                                <span class="disease-code">@record.Code</span>
+                            </div>
+                            <p class="disease-name">Disease Name: @record.DiseaseName</p>
+                            <div class="card-actions">
+                                <button class="action-button" type="button">
+                                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
+                                    Edit
+                                </button>
+                                <button class="action-button danger" type="button" @onclick="() => DeleteRecordAsync(record.Id)">
+                                    <span class="action-icon icon-trash" aria-hidden="true"></span>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted">No saved codes yet.</p>
+                }
             </section>
         
         </Authorized>
@@ -146,6 +161,8 @@
     private string searchCode = string.Empty;
     private bool isSearching = false;
     private string errorMessage = string.Empty;
+
+    private string? successMessage;
     
     // Strongly typed model holds the deserialized structure live
     private MedlineRoot? searchResult;
@@ -228,4 +245,75 @@
 
         return $"View Official Reference Document ({link.Rel})";
     }
+
+    private List<SavedRecord> userSavedRecords = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simply load the data; the AuthenticationStateProvider 
+        // will have already resolved by the time this runs.
+        await LoadSavedRecordsAsync();
+    }
+
+    private async Task LoadSavedRecordsAsync()
+    {
+        // Fetches the data from your existing GET endpoint
+        userSavedRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") 
+                        ?? new List<SavedRecord>();
+    }
+
+    private async Task SaveToFavoritesAsync()
+    {
+        if (PrimaryEntry == null) return;
+
+        var newRecord = new SavedRecord 
+        {
+            Code = ConditionCodeLabel,
+            DiseaseName = ConditionTitle,
+            Notes = "Saved from search",
+            // Save medline url
+            MedlineUrl = ConditionLinks.FirstOrDefault()?.Href ?? string.Empty
+        };
+
+        try 
+        {
+            var response = await Http.PostAsJsonAsync("api/saved-records", newRecord);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                // Clear any previous error and set the success message
+                errorMessage = string.Empty; 
+                successMessage = "Successfully saved to favorites!";
+                
+                // Refresh the list immediately
+                await LoadSavedRecordsAsync(); 
+            }
+            else
+            {
+                // Clear any previous success message if a new save fails
+                successMessage = string.Empty;
+                errorMessage = "Failed to save record to the database.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteRecordAsync(string id)
+    {
+        var response = await Http.DeleteAsync($"api/saved-records/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadSavedRecordsAsync(); // This triggers the UI refresh
+        }
+        else
+        {
+            errorMessage = "Failed to delete the record.";
+        }
+    }
+    
+    
+
 }
