@@ -141,6 +141,8 @@ if (!string.IsNullOrWhiteSpace(publicBaseUrl)
     });
 }
 
+// =========================================================================  
+// 3. CONFIGURE MIDDLEWARE PIPELINE & ENDPOINTS
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -155,7 +157,7 @@ app.UseCors("AllowNetlify");
 app.UseAuthentication();
 app.UseAuthorization();
 
-
+// Map controller endpoints (must be after auth middleware)
 app.MapControllers();
 
 

@@ -8,7 +8,7 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 
-
+@* This component provides ICD-10 code search functionality *@
 
 <PageTitle>ICD-10 Search</PageTitle>
 
@@ -382,18 +382,19 @@
 
     private async Task LoadCodeIntoSearch(string code)
     {
-        // Update the query used by the search function
+        // 1. Update the local variables
         SearchQuery = code;
-        
-        // Update the input field so the user sees what is being searched
         searchInputText = code;
-        
-        // Update the label variable
         searchCode = code;
-
-        // Trigger the search directly
+        
+        // 2. Perform the search
         await PerformSearch();
-        // FORCE the UI to re-render and display the updated variables
+        
+        // 3. PERSIST THE STATE: Save this code to localStorage 
+        // so it persists across page navigations/refreshes
+        await JS.InvokeVoidAsync("localStorage.setItem", "lastSearchTerm", code);
+        
+        // 4. Update the UI
         StateHasChanged();
     }
 

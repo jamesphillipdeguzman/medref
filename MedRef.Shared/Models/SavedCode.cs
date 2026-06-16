@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MedRef.Shared.Models
 {
+    // The SavedCode class represents a medical code that a user has saved in their profile. It contains properties for the unique identifier (Id), the user ID (UserId) to associate the code with a specific user, the code value (CodeValue), the disease name (DiseaseName) associated with the code, any custom notes (CustomNotes) the user may have added, the URL to the Medline entry (MedlineUrl) for reference, and the creation timestamp (CreatedAt) to track when the code was saved. This class is used to store and manage saved medical codes in MongoDB, allowing users to easily access and reference important medical information in their profiles.
     public class SavedCode
     {
         [BsonId]

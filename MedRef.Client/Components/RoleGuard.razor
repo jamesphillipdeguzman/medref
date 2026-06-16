@@ -1,7 +1,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthState
 @inject NavigationManager Nav
-
+@* This component guards against unauthorized access based on user roles *@
 <AuthorizeView>
     <Authorized>
         @{

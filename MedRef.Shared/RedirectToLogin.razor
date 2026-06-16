@@ -1,5 +1,9 @@
 @inject NavigationManager Navigation
-
+// This component is responsible for redirecting users to the login page when they are not authenticated. It uses the
+NavigationManager service to navigate to the "authentication/login" route, which will trigger the authentication
+process. The redirection is done in the OnInitialized lifecycle method, ensuring that it happens as soon as the
+component is initialized. This component can be used in any part of the application where you want to enforce
+authentication and redirect unauthorized users to the login page.
 @code {
 
     protected override void OnInitialized()

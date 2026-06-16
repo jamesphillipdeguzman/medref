@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace MedRef.Shared.Models
 {
+    // The UserProfile class represents a user's profile in the application, containing properties for the unique identifier (Id), user ID (UserId) to link back to the User model, full name (FullName), phone number (PhoneNumber), last updated timestamp (UpdatedAt), and a dictionary for dynamic profile data (ProfileData) that can store role-specific details. The Id property is decorated with the BsonId and BsonRepresentation attributes to indicate that it is the primary key and should be stored as an ObjectId in MongoDB. The UserId property is also decorated with BsonRepresentation to ensure it is stored as an ObjectId, linking it directly to the User model's Id. This class is essential for managing user profiles and allowing users to view and update their profile information in the application.
     public class UserProfile
     {
         [BsonId]

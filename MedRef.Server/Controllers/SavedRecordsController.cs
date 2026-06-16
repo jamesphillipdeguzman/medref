@@ -5,7 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 
 namespace MedRef.Server.Controllers;
-
+// This controller manages the CRUD operations for users' saved medical records, ensuring that each user can only access and modify their own records. It interacts with the MongoDB collection of SavedRecord to persist data.
 [ApiController]
 [Route("api/saved-records")] // Matches your frontend calls
 public class SavedRecordsController : ControllerBase
@@ -18,6 +18,7 @@ public class SavedRecordsController : ControllerBase
         _savedRecords = savedRecords;
     }
 
+    // GET: api/saved-records
     [HttpGet]
     [Authorize] // Ensure only authenticated users can access their saved records
     public async Task<IActionResult> GetSavedRecords()
@@ -32,7 +33,7 @@ public class SavedRecordsController : ControllerBase
 
         return Ok(userRecords);
     }
-
+    // POST: api/saved-records
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> SaveRecord([FromBody] SavedRecord record)
@@ -56,6 +57,7 @@ public class SavedRecordsController : ControllerBase
         await _savedRecords.InsertOneAsync(record);
         return Ok(record);
     }
+    // PUT: api/saved-records/{id}
     [HttpPut("{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateRecord(string id, [FromBody] SavedRecord record)
@@ -80,7 +82,7 @@ public class SavedRecordsController : ControllerBase
 
         return result.MatchedCount == 0 ? NotFound() : NoContent();
     }
-
+    // DELETE: api/saved-records/{id}
     [HttpDelete("{id}")]
     [Authorize] // Ensure only authenticated users can delete their records
     public async Task<IActionResult> Delete(string id)
