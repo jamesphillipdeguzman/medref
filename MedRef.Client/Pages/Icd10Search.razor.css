@@ -84,6 +84,13 @@
   line-height: 1.45;
 }
 
+/* Specifically target the container holding the save button to center it */
+.result-left .info-block:has(.favorites-button) {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+}
+
 .medline-links-box {
   border: 1px solid #b5d2e3;
   border-radius: 12px;

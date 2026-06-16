@@ -24,7 +24,7 @@ namespace MedRef.Client
         {
             try
             {
-                // Add a cache-busting query parameter to ensure we always get fresh data from the server
+                // 1. Fetch data from the server FIRST
                 var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 var url = $"api/auth/user?_={timestamp}";
 
@@ -35,36 +35,28 @@ namespace MedRef.Client
                     return _anonymousSession;
                 }
 
+                // 2. Populate the claims list now that we have data
                 var claims = new List<Claim>();
-
                 if (response.Claims != null)
                 {
                     foreach (var c in response.Claims)
                     {
-                        // Map the base claim coming from the API
                         claims.Add(new Claim(c.Type, c.Value));
 
-                        // FIX: If the claim type matches "Role" or the .NET long-form role claim URI,
-                        // duplicate it to ensure both standard literal string matching and native .NET IsInRole() function checks pass.
+                        // Keep your existing Role-mapping logic here
                         if (c.Type.Equals("Role", StringComparison.OrdinalIgnoreCase) ||
                             c.Type.Equals(ClaimTypes.Role, StringComparison.OrdinalIgnoreCase))
                         {
-                            // Add literal string fallback "Role"
                             if (!claims.Any(existing => existing.Type == "Role" && existing.Value == c.Value))
-                            {
                                 claims.Add(new Claim("Role", c.Value));
-                            }
 
-                            // Add official .NET long-form type fallback "http://schemas.microsoft.com/..."
                             if (!claims.Any(existing => existing.Type == ClaimTypes.Role && existing.Value == c.Value))
-                            {
                                 claims.Add(new Claim(ClaimTypes.Role, c.Value));
-                            }
                         }
                     }
                 }
 
-                // Explicitly provide the claim mapping structure type so IsInRole() checks evaluate correctly
+                // 3. Construct the Identity and Principal using the populated claims
                 var identity = new ClaimsIdentity(claims, "CookieAuth", ClaimTypes.Name, ClaimTypes.Role);
                 var user = new ClaimsPrincipal(identity);
 
@@ -72,7 +64,6 @@ namespace MedRef.Client
             }
             catch (Exception ex)
             {
-                // Log the exception so you can see if the API call is failing
                 Console.WriteLine($"Auth State Error: {ex.Message}");
                 return _anonymousSession;
             }

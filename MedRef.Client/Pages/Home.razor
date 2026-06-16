@@ -42,21 +42,15 @@
     </Authorized>
 
     <NotAuthorized>
-        <div class="card shadow-sm mt-4"
-             style="max-width: 400px; background-color: #1a1e24; border: 1px solid #2d323b; border-radius: 8px;">
-            <div class="card-body p-4 text-center">
-                <h5 class="card-title text-white mb-3">Secure Account Sign In</h5>
-                <p class="card-text text-muted small mb-4">Please log in with your account to access, track, and manage
-                    your saved medical records.</p>
+        <div class="page-wrapper">
+            <div class="modern-card">
+                <h2 class="card-title">Secure Account Sign In</h2>
+                <p class="card-subtitle">Please log in with your account to access, track, and manage your saved medical
+                    records.</p>
 
-                    <button @onclick="TriggerGoogleLogin"
-                            class="btn btn-danger w-100 d-flex align-items-center justify-content-center py-2"
-                            style="font-weight: 500; letter-spacing: 0.2px;">
-                        <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                             viewBox="0 0 16 16">
-                            <path
-                            d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0c2.158 0 3.978.808 5.38 2.12l-1.92 1.92C10.462 3.111 9.325 2.72 8 2.72a5.28 5.28 0 1 0 0 10.56c2.5 0 3.945-1.742 4.135-3.522H8V6.558h7.545z" />
-                        </svg>
+                    <button class="google-signin-btn" @onclick="TriggerGoogleLogin">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20"
+                             alt="Google" />
                         Sign in with Google
                     </button>
                 </div>

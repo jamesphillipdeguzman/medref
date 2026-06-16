@@ -37,9 +37,11 @@ main {
   background-color: var(--header-bg, #f3f7fc);
   border-bottom: 1px solid var(--header-border, #d6dee8);
 }
+
 .content {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  width: 100%;
+  display: flex;
+  justify-content: center; /* This forces the .page-wrapper to center */
 }
 
 @media (max-width: 900px) {
