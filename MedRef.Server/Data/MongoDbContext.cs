@@ -4,6 +4,7 @@ using MedRef.Shared.Models;
 
 namespace MedRef.Server.Data
 {
+    // This class serves as the MongoDB context for the application, providing access to the database and its collections. It is registered as a singleton service in the dependency injection container, allowing other services and controllers to interact with MongoDB through this context.
     public class MongoDbContext
     {
         private readonly IMongoDatabase _database;

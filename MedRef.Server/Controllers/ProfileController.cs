@@ -5,6 +5,7 @@ using System.Security.Claims;
 
 namespace MedRef.Server.Controllers
 {
+    // This controller manages user profiles, allowing users to view and update their profile information. It interacts with the ProfileRepository to persist profile data in MongoDB.
     [ApiController]
     [Route("api/[controller]")]
     public class ProfileController : ControllerBase

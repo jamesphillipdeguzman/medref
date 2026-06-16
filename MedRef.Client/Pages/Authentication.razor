@@ -3,6 +3,8 @@
 @inject IWebAssemblyHostEnvironment HostEnvironment
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 
+@* This component handles authentication actions like login and logout *@
+
 <div class="d-flex justify-content-center align-items-center my-5">
     <div class="text-center">
         <div class="spinner-border text-primary mb-3" role="status"></div>
@@ -29,6 +31,7 @@
         }
     }
 
+    @* Generates the authentication URL based on the current environment *@
     private string AuthUrl(string action) => HostEnvironment.IsDevelopment()
         ? $"http://localhost:5035/api/auth/{action}"
         : $"/api/auth/{action}";
