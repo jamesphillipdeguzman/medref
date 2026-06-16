@@ -3,6 +3,7 @@
 @using MedRef.Shared.Models
 @using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
 
 
@@ -259,15 +260,34 @@
     private async Task SaveToFavoritesAsync()
     {
         if (PrimaryEntry == null) return;
+        // Ensure you have the right claim type. 
+        // Often, NameIdentifier is correct, but sometimes you need "sub" or "email"
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+             
 
-        var newRecord = new SavedRecord 
-        {
+        var user = authState.User;
+
+        // Use this to debug: Print all claims to the browser console
+        foreach(var claim in user.Claims) {
+            Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
+        }
+
+        // Ensure you are pulling the right claim type that uniquely identifies the user
+        var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value 
+                    ?? user.FindFirst("sub")?.Value; // 'sub' is standard for OIDC/Google
+                
+
+        var newRecord = new SavedRecord
+        {   
+            // If userId is null, default to "Unknown" or handle it as an error
+            UserId = userId ?? "anonymous",
             Code = ConditionCodeLabel,
             DiseaseName = ConditionTitle,
             Notes = "Saved from search",
             // Save medline url
             MedlineUrl = ConditionLinks.FirstOrDefault()?.Href ?? string.Empty
         };
+        
 
         try 
         {
@@ -279,8 +299,9 @@
                 errorMessage = string.Empty; 
                 successMessage = "Successfully saved to favorites!";
                 
-                // Refresh the list immediately
+                // Refresh or refecth the list immediately
                 await LoadSavedRecordsAsync(); 
+                StateHasChanged(); // Force the UI to re-render the list
             }
             else
             {

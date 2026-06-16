@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MedRef.Shared.Models;
 using MongoDB.Driver;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MedRef.Server.Controllers;
 
@@ -18,21 +19,44 @@ public class SavedRecordsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize] // Ensure only authenticated users can access their saved records
     public async Task<IActionResult> GetSavedRecords()
     {
-        var records = await _savedRecords.Find(_ => true).ToListAsync();
-        return Ok(records);
+        // 1. Get the current user's ID
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // 2. Use the _savedRecords collection injected in the constructor
+        // Since MongoDB collections don't use .Where() like Entity Framework, 
+        // you use Find() with a filter:
+        var userRecords = await _savedRecords.Find(r => r.UserId == userId).ToListAsync();
+
+        return Ok(userRecords);
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> SaveRecord([FromBody] SavedRecord record)
     {
-        if (string.IsNullOrWhiteSpace(record.Id)) record.Id = Guid.NewGuid().ToString();
+        // 1. Extract the ID
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // 2. Explicitly handle the null case
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User identity could not be verified.");
+        }
+
+        // 3. Assign the validated ID
+        record.UserId = userId;
+
+        if (string.IsNullOrWhiteSpace(record.Id))
+            record.Id = Guid.NewGuid().ToString();
+
         await _savedRecords.InsertOneAsync(record);
         return Ok(record);
     }
-
     [HttpPut("{id}")]
+    [Authorize] // Ensure only authenticated users can update their records
     public async Task<IActionResult> UpdateRecord(string id, [FromBody] SavedRecord record)
     {
         // Ensure the ID in the URL matches the object being sent
@@ -46,6 +70,7 @@ public class SavedRecordsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize] // Ensure only authenticated users can delete their records
     public async Task<IActionResult> Delete(string id)
     {
         var result = await _savedRecords.DeleteOneAsync(r => r.Id == id);
