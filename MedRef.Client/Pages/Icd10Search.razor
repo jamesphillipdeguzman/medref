@@ -39,10 +39,34 @@
                 <h2>Searching</h2>
                 <p>Retrieving condition details and reference links...</p>
             </div>
+            
         }
+        
         @* State 2: data is available, so condition, definition, and links are displayed *@
         else if (HasSearchResult)
         {
+            <div class="info-block">
+                <div class="action-container">
+                    <AuthorizeView>
+                        <Authorized>
+                            <button class="favorites-button" type="button" @onclick="SaveToFavoritesAsync">
+                                SAVE TO FAVORITES
+                            </button>
+                            @if (!string.IsNullOrEmpty(successMessage))
+                            {
+                                <p style="color: green; font-size: 0.8rem; margin-top: 0.5rem;">@successMessage</p>
+                            }
+                        </Authorized>
+                        <NotAuthorized>
+                            <p class="auth-hint">Ready to save this code?</p>
+                            <a href="/login" class="favorites-button">LOGIN TO SAVE</a>
+                        </NotAuthorized>
+                        <Authorizing>
+                            <p>Checking your session...</p>
+                        </Authorizing>
+                    </AuthorizeView>
+                </div>
+            </div>
             <div class="info-block">
                 <h2>Condition:</h2>
                 <p><strong>@ConditionCodeLabel</strong> - @ConditionTitle</p>
@@ -76,28 +100,7 @@
                 }
             </div>
 
-            <div class="info-block">
-            <div class="action-container">
-                <AuthorizeView>
-                    <Authorized>
-                        <button class="favorites-button" type="button" @onclick="SaveToFavoritesAsync">
-                            SAVE TO FAVORITES
-                        </button>
-                        @if (!string.IsNullOrEmpty(successMessage))
-                        {
-                            <p style="color: green; font-size: 0.8rem; margin-top: 0.5rem;">@successMessage</p>
-                        }
-                    </Authorized>
-                    <NotAuthorized>
-                        <p class="auth-hint">Ready to save this code?</p>
-                        <a href="/login" class="favorites-button">LOGIN TO SAVE</a>
-                    </NotAuthorized>
-                    <Authorizing>
-                        <p>Checking your session...</p>
-                    </Authorizing>
-                </AuthorizeView>
-            </div>
-        </div>
+            
         }
         @* State 3: the API returned an error or an exception occurred *@
         else if (!string.IsNullOrEmpty(errorMessage))
@@ -118,42 +121,32 @@
     </section>
     
     <AuthorizeView>
+    <Authorized>
+        <section class="result-right">
+            <h3 class="saved-codes-title">SAVED CODES</h3>
 
-        <Authorized>
-            <section class="result-right">
-                <h3 class="saved-codes-title">SAVED CODES</h3>
-
-                @if (userSavedRecords.Any())
+            @if (userSavedRecords != null && userSavedRecords.Any())
+            {
+                @foreach (var record in userSavedRecords)
                 {
-                    @foreach (var record in userSavedRecords)
-                    {
-                        <div class="disease-card">
-                            <div class="card-top">
-                                <span class="action-icon icon-person" aria-hidden="true"></span>
-                                <span class="disease-code">@record.Code</span>
-                            </div>
-                            <p class="disease-name">Disease Name: @record.DiseaseName</p>
-                            <div class="card-actions">
-                                <button class="action-button" type="button">
-                                    <span class="action-icon icon-pencil" aria-hidden="true"></span>
-                                    Edit
-                                </button>
-                                <button class="action-button danger" type="button" @onclick="() => DeleteRecordAsync(record.Id)">
-                                    <span class="action-icon icon-trash" aria-hidden="true"></span>
-                                    Delete
-                                </button>
-                            </div>
+                    <div class="disease-card" 
+                         @onclick="() => LoadCodeIntoSearch(record.Code)" 
+                         style="cursor: pointer;">
+                        <div class="card-top">
+                            <span class="action-icon icon-person"></span>
+                            <span class="disease-code">@record.Code</span>
                         </div>
-                    }
+                        <p class="disease-name">@record.DiseaseName</p>
+                    </div>
                 }
-                else
-                {
-                    <p class="text-muted">No saved codes yet.</p>
-                }
-            </section>
-        
-        </Authorized>
-    </AuthorizeView>
+            }
+            else
+            {
+                <p class="text-muted">No saved codes yet.</p>
+            }
+        </section>
+    </Authorized>
+</AuthorizeView>
 </div>
 
 @code {
@@ -163,6 +156,12 @@
     private string errorMessage = string.Empty;
 
     private string? successMessage;
+
+    private string SearchQuery = "";
+    private List<SavedRecord> allRecords = new();
+    private string filterText = "";
+    private List<SavedRecord> userSavedRecords = new();
+            
     
     // Strongly typed model holds the deserialized structure live
     private MedlineRoot? searchResult;
@@ -195,38 +194,27 @@
 
     private async Task ExecuteApiSearchAsync()
     {
-        if (string.IsNullOrWhiteSpace(searchInputText))
-            return;
+        if (string.IsNullOrWhiteSpace(searchInputText)) return;
 
-        try
+        isSearching = true;
+        errorMessage = string.Empty;
+        searchResult = null;
+
+        // Sync input to the search query variable
+        SearchQuery = searchInputText.Trim();
+        searchCode = SearchQuery;
+
+        // Call the unified search method
+        await PerformSearch();
+
+        if (searchResult?.Feed?.Entries == null || !searchResult.Feed.Entries.Any())
         {
-            // Resets state for a new search request
-            isSearching = true;
-            errorMessage = string.Empty;
-            searchResult = null;
-
-            // Target the clean backend proxy route we built in Step 2
-            string trimmedInput = searchInputText.Trim();
-            searchCode = trimmedInput;
-            string endpointUrl = $"api/medlineproxy?code={Uri.EscapeDataString(trimmedInput)}";
-
-            // Directly read and stream into your Shared model array structure
-            searchResult = await Http.GetFromJsonAsync<MedlineRoot>(endpointUrl);
-
-            if (searchResult?.Feed?.Entries == null || !searchResult.Feed.Entries.Any())
-            {
-                errorMessage = $"No unified clinical matching records returned for index entry: {trimmedInput}";
-            }
+            errorMessage = $"No unified clinical matching records returned for index entry: {searchCode}";
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"An unexpected connectivity or structural translation mapping error occurred: {ex.Message}";
-        }
-        finally
-        {
-            isSearching = false;
-        }
+
+        isSearching = false;
     }
+    
 
     private async Task HandleKeyUp(KeyboardEventArgs e)
     {
@@ -246,13 +234,19 @@
         return $"View Official Reference Document ({link.Rel})";
     }
 
-    private List<SavedRecord> userSavedRecords = new();
+    // This property automatically filters the list whenever filterText changes
+    private IEnumerable<SavedRecord> FilteredRecords => string.IsNullOrWhiteSpace(filterText)
+        ? allRecords
+        : allRecords.Where(r => r.Code.Contains(filterText, StringComparison.OrdinalIgnoreCase) || 
+                                r.DiseaseName.Contains(filterText, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnInitializedAsync()
     {
         // Simply load the data; the AuthenticationStateProvider 
         // will have already resolved by the time this runs.
         await LoadSavedRecordsAsync();
+        // Load your data once
+        allRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") ?? new();
     }
 
     private async Task LoadSavedRecordsAsync()
@@ -313,7 +307,42 @@
             errorMessage = "Failed to delete the record.";
         }
     }
-    
-    
 
+    
+    private async Task PerformSearch()
+    {
+        if (string.IsNullOrWhiteSpace(SearchQuery)) return;
+
+        try
+        {
+            // This is the only place the API call happens
+            string endpointUrl = $"api/medlineproxy?code={Uri.EscapeDataString(SearchQuery)}";
+            searchResult = await Http.GetFromJsonAsync<MedlineRoot>(endpointUrl);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Search error: {ex.Message}";
+            Console.WriteLine(errorMessage);
+        }
+    }
+
+    private async Task LoadCodeIntoSearch(string code)
+    {
+        // Update the query used by the search function
+        SearchQuery = code;
+        
+        // Update the input field so the user sees what is being searched
+        searchInputText = code;
+        
+        // Update the label variable
+        searchCode = code;
+
+        // Trigger the search directly
+        await PerformSearch();
+        // FORCE the UI to re-render and display the updated variables
+        StateHasChanged();
+    }
+
+      
+    
 }

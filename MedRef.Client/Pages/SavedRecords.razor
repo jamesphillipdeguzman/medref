@@ -19,8 +19,8 @@
 
 <div class="records-table-wrapper">
 	<div class="records-search-bar">
-		<input type="search" class="saved-search-input" placeholder="Search Saved List"
-			   aria-label="Search saved list" />
+		<input type="search" class="saved-search-input" placeholder="Search Saved List" aria-label="Search saved list"
+			   @bind="filterText" @bind:event="oninput" />
 	</div>
 
 	<div class="records-table-scroll">
@@ -36,39 +36,30 @@
 			</thead>
 
 			<tbody>
-
-				@foreach (var record in records)
+				@* We now loop through FilteredRecords instead of the full records list *@
+				@foreach (var record in FilteredRecords)
 				{
 					<tr>
-
 						<td>@record.Code</td>
-
 						<td>@record.DiseaseName</td>
-
 						<td>@record.Notes</td>
-
 						<td>
 							<a href="@record.MedlineUrl" target="_blank">
 								@record.MedlineUrl
 							</a>
 						</td>
-
 						<td>
 							<div class="actions-cell">
-
 								<button class="action-button" @onclick="() => OpenEditModal(record)">
 									<span class="action-icon icon-pencil"></span>
 								</button>
 								<button class="action-button danger" @onclick="() => DeleteRecordAsync(record.Id)">
 									<span class="action-icon icon-trash"></span>
 								</button>
-
 							</div>
 						</td>
-
 					</tr>
 				}
-
 			</tbody>
 
 		</table>
@@ -77,7 +68,7 @@
 
 <div class="saved-records-footer">
 	<p>App version 1.1.0</p>
-	<a href="#">Apps Links Footer Footer Page More</a>
+	<a href="https://github.com/jamesphillipdeguzman/medref" target="_blank">See this project on GitHub</a>
 </div>
 
 @if (showEditModal && selectedRecord is not null)
@@ -119,40 +110,42 @@
 	private SavedRecord? selectedRecord;
 	private bool showEditModal = false;
 
+	private string filterText = "";
+
 	protected override async Task OnInitializedAsync()
 	{
-		// 1. Fetch the user's login state right when the page builds
 		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
 		var user = authState.User;
 
-		// 2. Parse out their matching functional roles
 		var roleClaim = user.FindFirst(c => c.Type == "Role")?.Value
 						?? user.FindFirst(ClaimTypes.Role)?.Value;
 
-		// 3. HARD INTERCEPT: If they logged out or aren't a Nurse, kick them straight to root home!
 		if (user.Identity == null || !user.Identity.IsAuthenticated || roleClaim != "Nurse")
 		{
 			Navigation.NavigateTo("/", forceLoad: false);
 			return;
 		}
 
-		// 4. FIX: If they passed the guard, you MUST fire the database fetcher here!
 		await LoadRecordsAsync();
 	}
 
-	
+	// This property filters the 'records' list dynamically
+	private IEnumerable<SavedRecord> FilteredRecords => string.IsNullOrWhiteSpace(filterText)
+		? records
+		: records.Where(r =>
+			(r.Code?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false) ||
+			(r.DiseaseName?.Contains(filterText, StringComparison.OrdinalIgnoreCase) ?? false));
 
 	private async Task LoadRecordsAsync()
 	{
 		try
 		{
-			// Change: Use the base URL for the controller route
+			// Ensure this URL matches your Controller route
 			var response = await Http.GetAsync("api/saved-records");
 
 			if (response.IsSuccessStatusCode)
 			{
-				var data = await response.Content.ReadFromJsonAsync<List<SavedRecord>>();
-				records = data ?? new(); // If null, assign an empty list
+				records = await response.Content.ReadFromJsonAsync<List<SavedRecord>>() ?? new();
 				errorMessage = records.Count == 0 ? "No records found." : "";
 			}
 			else
@@ -181,22 +174,27 @@
 
 	private async Task SaveRecordAsync()
 	{
-		if (selectedRecord is null)
-			return;
+		if (selectedRecord is null) return;
 
 		try
 		{
-			await Http.PutAsJsonAsync(
-				$"api/saved-records/{selectedRecord.Id}",
-				selectedRecord);
+			// Ensure your API PUT endpoint matches this URL
+			var response = await Http.PutAsJsonAsync($"api/saved-records/{selectedRecord.Id}", selectedRecord);
 
-			await LoadRecordsAsync();
-
-			showEditModal = false;
-			selectedRecord = null;
+			if (response.IsSuccessStatusCode)
+			{
+				await LoadRecordsAsync();
+				CloseEditModal();
+			}
+			else
+			{
+				errorMessage = "Failed to update record.";
+			}
 		}
-		catch
+		catch (Exception ex)
 		{
+			errorMessage = "Error connecting to server.";
+			Console.WriteLine($"Detailed error: {ex.Message}");
 		}
 	}
 
@@ -204,15 +202,12 @@
 	{
 		try
 		{
-			await Http.DeleteAsync(
-				$"api/saved-records/{id}");
-
+			await Http.DeleteAsync($"api/saved-records/{id}");
 			await LoadRecordsAsync();
 		}
 		catch
 		{
+			errorMessage = "Error deleting record.";
 		}
 	}
-
-	
 }

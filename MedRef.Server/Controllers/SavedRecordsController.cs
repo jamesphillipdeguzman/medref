@@ -32,6 +32,19 @@ public class SavedRecordsController : ControllerBase
         return Ok(record);
     }
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateRecord(string id, [FromBody] SavedRecord record)
+    {
+        // Ensure the ID in the URL matches the object being sent
+        if (id != record.Id) return BadRequest("ID mismatch");
+
+        // Replace the existing document in MongoDB
+        var result = await _savedRecords.ReplaceOneAsync(r => r.Id == id, record);
+
+        // Return 204 No Content on success, or 404 if the record wasn't found
+        return result.MatchedCount == 0 ? NotFound() : NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {

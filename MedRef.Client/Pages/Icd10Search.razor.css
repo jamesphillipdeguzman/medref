@@ -87,7 +87,7 @@
 /* Specifically target the container holding the save button to center it */
 .result-left .info-block:has(.favorites-button) {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   padding-top: 0.5rem;
 }
 
