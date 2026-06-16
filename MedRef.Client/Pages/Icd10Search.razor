@@ -3,7 +3,10 @@
 @using MedRef.Shared.Models
 @using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+@inject IJSRuntime JS
 
 
 
@@ -50,11 +53,15 @@
                     <AuthorizeView>
                         <Authorized>
                             <button class="favorites-button" type="button" @onclick="SaveToFavoritesAsync">
-                                SAVE TO FAVORITES
+                                SAVE TO FAVORITES ❤️
                             </button>
                             @if (!string.IsNullOrEmpty(successMessage))
                             {
                                 <p style="color: green; font-size: 0.8rem; margin-top: 0.5rem;">@successMessage</p>
+                            }
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <p style="color: #dc3545; font-size: 0.8rem; margin-top: 0.5rem;">@errorMessage</p>
                             }
                         </Authorized>
                         <NotAuthorized>
@@ -213,6 +220,8 @@
         }
 
         isSearching = false;
+
+        await JS.InvokeVoidAsync("localStorage.setItem", "lastSearchTerm", searchInputText);
     }
     
 
@@ -222,6 +231,25 @@
         if (e.Key == "Enter")
         {
             await ExecuteApiSearchAsync();
+        }
+    }
+
+    private async Task HandleSave(SavedRecord selectedCode)
+    {
+        var newRecord = new SavedRecord { 
+            Code = selectedCode.Code, 
+            DiseaseName = selectedCode.DiseaseName 
+        };
+
+        var response = await Http.PostAsJsonAsync("api/saved-records", newRecord);
+
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Successfully saved! ❤️";
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            errorMessage = "This code is already in your favorites list!";
         }
     }
 
@@ -247,6 +275,12 @@
         await LoadSavedRecordsAsync();
         // Load your data once
         allRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") ?? new();
+            // Try to load the previous search term from browser memory
+        searchInputText = await JS.InvokeAsync<string>("localStorage.getItem", "lastSearchTerm") ?? string.Empty;
+        if (!string.IsNullOrEmpty(searchInputText)) 
+        {
+            await LoadCodeIntoSearch(searchInputText);
+        }
     }
 
     private async Task LoadSavedRecordsAsync()
@@ -259,15 +293,34 @@
     private async Task SaveToFavoritesAsync()
     {
         if (PrimaryEntry == null) return;
+        // Ensure you have the right claim type. 
+        // Often, NameIdentifier is correct, but sometimes you need "sub" or "email"
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+             
 
-        var newRecord = new SavedRecord 
-        {
+        var user = authState.User;
+
+        // Use this to debug: Print all claims to the browser console
+        foreach(var claim in user.Claims) {
+            Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
+        }
+
+        // Ensure you are pulling the right claim type that uniquely identifies the user
+        var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value 
+                    ?? user.FindFirst("sub")?.Value; // 'sub' is standard for OIDC/Google
+                
+
+        var newRecord = new SavedRecord
+        {   
+            // If userId is null, default to "Unknown" or handle it as an error
+            UserId = userId ?? "anonymous",
             Code = ConditionCodeLabel,
             DiseaseName = ConditionTitle,
             Notes = "Saved from search",
             // Save medline url
             MedlineUrl = ConditionLinks.FirstOrDefault()?.Href ?? string.Empty
         };
+        
 
         try 
         {
@@ -275,17 +328,18 @@
             
             if (response.IsSuccessStatusCode)
             {
-                // Clear any previous error and set the success message
-                errorMessage = string.Empty; 
-                successMessage = "Successfully saved to favorites!";
-                
-                // Refresh the list immediately
+                successMessage = "Successfully saved to favorites! ❤️";
+                errorMessage = string.Empty;
                 await LoadSavedRecordsAsync(); 
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                // This catches the 'Conflict' returned by your controller
+                errorMessage = "This code is already in your favorites list!";
+                successMessage = string.Empty;
             }
             else
             {
-                // Clear any previous success message if a new save fails
-                successMessage = string.Empty;
                 errorMessage = "Failed to save record to the database.";
             }
         }

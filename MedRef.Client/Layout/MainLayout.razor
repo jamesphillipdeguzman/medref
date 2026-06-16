@@ -3,15 +3,17 @@
 <div class="page">
     <MedRef.Client.Components.AppHeader />
 
-    <div class="main-shell">
+    <div class="main-shell" style="display: flex;">
         <aside class="sidebar">
             <NavMenu />
         </aside>
 
-        <main>
-            <article class="content px-4">
+        <div class="content-wrapper" style="flex: 1; display: flex; flex-direction: column;">
+            <main class="content px-4" style="flex: 1;">
                 @Body
-            </article>
-        </main>
+            </main>
+
+            <Footer />
+        </div>
     </div>
 </div>
