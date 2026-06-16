@@ -19,6 +19,7 @@
 
 main {
   min-width: 0;
+  flex: 1; /* This pushes the footer down */
 }
 
 .content {

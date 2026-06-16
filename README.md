@@ -6,7 +6,7 @@
 
 ### 📌 Project Details
 
-- Project Name: Medref
+- Project Name: MedrefTool
 - Description: A medical reference tool for ICD codes and more...
 - Architecture - Blazor WASM → ASP.NET API → MedlinePlus Connect
 

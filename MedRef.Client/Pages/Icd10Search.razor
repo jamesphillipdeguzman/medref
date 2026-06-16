@@ -5,6 +5,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @inject AuthenticationStateProvider AuthStateProvider
+@inject HttpClient Http
+@inject IJSRuntime JS
 
 
 
@@ -51,11 +53,15 @@
                     <AuthorizeView>
                         <Authorized>
                             <button class="favorites-button" type="button" @onclick="SaveToFavoritesAsync">
-                                SAVE TO FAVORITES
+                                SAVE TO FAVORITES ❤️
                             </button>
                             @if (!string.IsNullOrEmpty(successMessage))
                             {
                                 <p style="color: green; font-size: 0.8rem; margin-top: 0.5rem;">@successMessage</p>
+                            }
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <p style="color: #dc3545; font-size: 0.8rem; margin-top: 0.5rem;">@errorMessage</p>
                             }
                         </Authorized>
                         <NotAuthorized>
@@ -214,6 +220,8 @@
         }
 
         isSearching = false;
+
+        await JS.InvokeVoidAsync("localStorage.setItem", "lastSearchTerm", searchInputText);
     }
     
 
@@ -223,6 +231,25 @@
         if (e.Key == "Enter")
         {
             await ExecuteApiSearchAsync();
+        }
+    }
+
+    private async Task HandleSave(SavedRecord selectedCode)
+    {
+        var newRecord = new SavedRecord { 
+            Code = selectedCode.Code, 
+            DiseaseName = selectedCode.DiseaseName 
+        };
+
+        var response = await Http.PostAsJsonAsync("api/saved-records", newRecord);
+
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Successfully saved! ❤️";
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            errorMessage = "This code is already in your favorites list!";
         }
     }
 
@@ -248,6 +275,12 @@
         await LoadSavedRecordsAsync();
         // Load your data once
         allRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") ?? new();
+            // Try to load the previous search term from browser memory
+        searchInputText = await JS.InvokeAsync<string>("localStorage.getItem", "lastSearchTerm") ?? string.Empty;
+        if (!string.IsNullOrEmpty(searchInputText)) 
+        {
+            await LoadCodeIntoSearch(searchInputText);
+        }
     }
 
     private async Task LoadSavedRecordsAsync()
@@ -295,18 +328,18 @@
             
             if (response.IsSuccessStatusCode)
             {
-                // Clear any previous error and set the success message
-                errorMessage = string.Empty; 
-                successMessage = "Successfully saved to favorites!";
-                
-                // Refresh or refecth the list immediately
+                successMessage = "Successfully saved to favorites! ❤️";
+                errorMessage = string.Empty;
                 await LoadSavedRecordsAsync(); 
-                StateHasChanged(); // Force the UI to re-render the list
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                // This catches the 'Conflict' returned by your controller
+                errorMessage = "This code is already in your favorites list!";
+                successMessage = string.Empty;
             }
             else
             {
-                // Clear any previous success message if a new save fails
-                successMessage = string.Empty;
                 errorMessage = "Failed to save record to the database.";
             }
         }

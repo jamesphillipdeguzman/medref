@@ -16,8 +16,18 @@ namespace MedRef.Server.Services
             return await _savedCodesCollection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<SavedCode> AddSavedCodeAsync(SavedCode code)
+        public async Task<SavedCode?> AddSavedCodeAsync(SavedCode code)
         {
+            // Now that SavedCode has UserId and CodeValue, this will work perfectly!
+            var existing = await _savedCodesCollection
+                .Find(c => c.CodeValue == code.CodeValue && c.UserId == code.UserId)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+            {
+                return null; // Duplicate prevented
+            }
+
             await _savedCodesCollection.InsertOneAsync(code);
             return code;
         }

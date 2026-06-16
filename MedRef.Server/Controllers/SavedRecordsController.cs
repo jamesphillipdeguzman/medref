@@ -37,35 +37,47 @@ public class SavedRecordsController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SaveRecord([FromBody] SavedRecord record)
     {
-        // 1. Extract the ID
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst("sub")?.Value;
 
-        // 2. Explicitly handle the null case
-        if (string.IsNullOrEmpty(userId))
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        // CRITICAL: Check if this user already has this specific code saved
+        var exists = await _savedRecords.Find(r => r.UserId == userId && r.Code == record.Code).AnyAsync();
+
+        if (exists)
         {
-            return Unauthorized("User identity could not be verified.");
+            // Return 409 Conflict if found
+            return Conflict("This code is already in your favorites list!");
         }
 
-        // 3. Assign the validated ID
         record.UserId = userId;
-
-        if (string.IsNullOrWhiteSpace(record.Id))
-            record.Id = Guid.NewGuid().ToString();
-
+        record.Id = Guid.NewGuid().ToString(); // Or let MongoDB generate it
         await _savedRecords.InsertOneAsync(record);
         return Ok(record);
     }
     [HttpPut("{id}")]
-    [Authorize] // Ensure only authenticated users can update their records
+    [Authorize]
     public async Task<IActionResult> UpdateRecord(string id, [FromBody] SavedRecord record)
     {
-        // Ensure the ID in the URL matches the object being sent
         if (id != record.Id) return BadRequest("ID mismatch");
 
-        // Replace the existing document in MongoDB
+        // 1. Get the current user ID
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        // 2. Fetch the current version from the database first
+        var existingRecord = await _savedRecords.Find(r => r.Id == id).FirstOrDefaultAsync();
+
+        // 3. Security: Check if the record exists and if it belongs to this user
+        if (existingRecord == null) return NotFound();
+        if (existingRecord.UserId != userId) return Forbid(); // Blocks unauthorized edits
+
+        // 4. Force the UserId to remain what it was originally
+        record.UserId = existingRecord.UserId;
+
+        // 5. Replace with the record that now has the correct, preserved UserId
         var result = await _savedRecords.ReplaceOneAsync(r => r.Id == id, record);
 
-        // Return 204 No Content on success, or 404 if the record wasn't found
         return result.MatchedCount == 0 ? NotFound() : NoContent();
     }
 

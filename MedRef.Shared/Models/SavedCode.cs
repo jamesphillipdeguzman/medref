@@ -10,6 +10,9 @@ namespace MedRef.Shared.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
+        [BsonElement("UserId")]
+        public string UserId { get; set; } = string.Empty;
+
         [BsonElement("CodeValue")]
         public string CodeValue { get; set; } = string.Empty;
 
