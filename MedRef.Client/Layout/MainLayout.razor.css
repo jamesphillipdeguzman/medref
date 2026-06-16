@@ -21,27 +21,9 @@ main {
   min-width: 0;
 }
 
-.app-name {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #12344d; /* Sets it to matching dark slate brand color */
-  margin-left: 0.75rem; /* Pushes text smoothly to the right of the cross logo */
-  display: inline-block;
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* <-- CRITICAL: Pushes brand-block left and toggle controls right */
-  padding: 1rem 2rem; /* Generous padding for high-density app header breathing room */
-  background-color: var(--header-bg, #f3f7fc);
-  border-bottom: 1px solid var(--header-border, #d6dee8);
-}
-
 .content {
-  width: 100%;
-  display: flex;
-  justify-content: center; /* This forces the .page-wrapper to center */
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 @media (max-width: 900px) {
