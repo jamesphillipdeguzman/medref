@@ -2,6 +2,26 @@
 @using System.Security.Claims
 
 <nav class="sidebar-nav">
+    
+    @* Authentication section to show User greeting and Logout/Login button *@
+    <AuthorizeView>
+        <Authorized>
+            <div class="user-profile-section px-3 py-2 mb-3 border-bottom">
+                <p class="text-white mb-1">Welcome, @context.User.Identity?.Name?.Split('@')[0]!</p>
+                <NavLink class="btn btn-outline-light btn-sm" href="authentication/logout">
+                    Logout
+                </NavLink>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="px-3 py-2 mb-3">
+                <NavLink class="btn btn-primary btn-sm" href="authentication/login">
+                    Sign In
+                </NavLink>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+
     <h2 class="sidebar-title">
         Pages
     </h2>
@@ -10,7 +30,6 @@
         ICD-10 Search
     </NavLink>
 
-    @* Use a custom client-side context check to catch both standard and literal claim strings *@
     <AuthorizeView>
         <Authorized>
             @{
