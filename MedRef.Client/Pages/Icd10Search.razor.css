@@ -147,6 +147,56 @@
   color: #12344d;
 }
 
+/* SKELETON LOADING STYLES: Animated placeholder cards shown while fetching saved records */
+/* Location: Right panel of ICD-10 Search page (Saved Codes section) */
+/* Skeleton loading animation */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.skeleton-card {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.skeleton-text {
+  background: linear-gradient(90deg, #e0e7f1 25%, #f0f4f8 50%, #e0e7f1 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+  border-radius: 6px;
+  display: block;
+  height: 1rem;
+}
+
+.skeleton-code {
+  height: 0.85rem;
+  width: 60%;
+  margin-top: 0.3rem;
+}
+
+.skeleton-name {
+  height: 0.9rem;
+  width: 85%;
+  margin-top: 0.5rem !important;
+}
+
+.skeleton-icon {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  background: linear-gradient(90deg, #e0e7f1 25%, #f0f4f8 50%, #e0e7f1 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
 .favorites-row {
   grid-column: 1 / -1;
   display: flex;
