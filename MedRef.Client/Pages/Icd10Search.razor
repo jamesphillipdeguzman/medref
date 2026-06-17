@@ -132,7 +132,22 @@
         <section class="result-right">
             <h3 class="saved-codes-title">SAVED CODES</h3>
 
-            @if (userSavedRecords != null && userSavedRecords.Any())
+            @* SKELETON LOADING STATE: Shows 3 animated skeleton cards while fetching saved records from backend *@
+            @if (isLoadingSavedRecords)
+            {
+                @for (int i = 0; i < 3; i++)
+                {
+                    <div class="disease-card skeleton-card">
+                        <div class="card-top">
+                            <span class="skeleton-icon"></span>
+                            <span class="skeleton-text skeleton-code"></span>
+                        </div>
+                        <p class="skeleton-text skeleton-name"></p>
+                    </div>
+                }
+            }
+            @* END SKELETON LOADING STATE *@
+            else if (userSavedRecords != null && userSavedRecords.Any())
             {
                 @foreach (var record in userSavedRecords)
                 {
@@ -160,6 +175,7 @@
     private string searchInputText = string.Empty;
     private string searchCode = string.Empty;
     private bool isSearching = false;
+    private bool isLoadingSavedRecords = false;
     private string errorMessage = string.Empty;
 
     private string? successMessage;
@@ -273,9 +289,7 @@
         // Simply load the data; the AuthenticationStateProvider 
         // will have already resolved by the time this runs.
         await LoadSavedRecordsAsync();
-        // Load your data once
-        allRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") ?? new();
-            // Try to load the previous search term from browser memory
+        // Try to load the previous search term from browser memory
         searchInputText = await JS.InvokeAsync<string>("localStorage.getItem", "lastSearchTerm") ?? string.Empty;
         if (!string.IsNullOrEmpty(searchInputText)) 
         {
@@ -285,9 +299,20 @@
 
     private async Task LoadSavedRecordsAsync()
     {
-        // Fetches the data from your existing GET endpoint
-        userSavedRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") 
-                        ?? new List<SavedRecord>();
+        isLoadingSavedRecords = true;
+        try
+        {
+            // Fetches the data from your existing GET endpoint
+            var savedRecords = await Http.GetFromJsonAsync<List<SavedRecord>>("api/saved-records") 
+                            ?? new List<SavedRecord>();
+
+            userSavedRecords = savedRecords;
+            allRecords = savedRecords.ToList();
+        }
+        finally
+        {
+            isLoadingSavedRecords = false;
+        }
     }
 
     private async Task SaveToFavoritesAsync()
