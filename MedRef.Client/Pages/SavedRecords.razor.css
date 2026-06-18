@@ -38,11 +38,18 @@
   border-radius: 10px;
 }
 
+/* SavedRecords.razor.css */
 .records-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 860px;
-  border: 1px solid #c9d9e7;
+  min-width: 0; /* REMOVE the 860px restriction */
+}
+
+.records-table-scroll {
+  overflow-x: auto; /* Allows only the table to scroll, not the whole page */
+  margin-top: 10px;
+  border-radius: 10px;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
 }
 
 .records-table th,
