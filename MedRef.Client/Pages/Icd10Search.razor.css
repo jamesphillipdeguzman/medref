@@ -224,6 +224,20 @@
   border-radius: 12px;
   padding: 0.8rem;
   background-color: #fbfdff;
+
+  /* Add these for a subtle base state */
+  box-shadow: 0 2px 4px rgba(18, 52, 77, 0.05);
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.disease-card:hover {
+  background-color: #ffffff;
+  border-color: #0a9396;
+  transform: translateY(-4px);
+
+  /* Slightly deeper, soft shadow on hover */
+  box-shadow: 0 8px 16px rgba(18, 52, 77, 0.12);
 }
 
 .card-top {
