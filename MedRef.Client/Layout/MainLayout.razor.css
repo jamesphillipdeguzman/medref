@@ -1,8 +1,11 @@
+/* MainLayout.razor.css */
+
 .page {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: linear-gradient(180deg, #f9fcff 0%, #f1f6fb 100%);
+  overflow-x: hidden; /* Prevents global horizontal scroll */
 }
 
 .main-shell {
@@ -11,45 +14,45 @@
   grid-template-columns: 260px minmax(0, 1fr);
 }
 
-/* MainLayout.razor.css */
-
 .sidebar {
   background: linear-gradient(180deg, #12344d 0%, #1a5276 100%);
   border-right: 1px solid #0d2b40;
   min-height: 100vh;
-
-  /* ADD THESE LINES */
-  width: 60px; /* Collapsed width */
   transition: width 0.3s ease;
-  overflow: hidden; /* Ensures content doesn't bleed out when collapsed */
-  white-space: nowrap; /* Prevents text from wrapping */
-}
-
-/* Hover effect */
-.sidebar:hover {
-  width: 260px;
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2); /* Adds depth so it pops over content */
+  overflow: hidden;
   z-index: 100;
 }
+
 main {
   min-width: 0;
-  flex: 1; /* This pushes the footer down */
+  flex: 1;
 }
 
 .content {
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding: 1.25rem;
 }
 
-/* MainLayout.razor.css */
+/* Desktop: Sidebar fixed at 260px */
+@media (min-width: 901px) {
+  .sidebar {
+    width: 260px;
+  }
+}
+
+/* Mobile: Sidebar collapses to 60px, expands on hover */
 @media (max-width: 900px) {
   .main-shell {
-    display: block; /* Changes grid to block stack for mobile */
-    grid-template-columns: 1fr;
+    display: block;
   }
 
   .sidebar {
-    border-right: 0;
+    width: 60px;
+    border-right: none;
     border-bottom: 1px solid #0d2b40;
+  }
+
+  .sidebar:hover {
+    width: 260px;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   }
 }
